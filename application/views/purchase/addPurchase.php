@@ -47,22 +47,23 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-12 col-md-6 mb-2 col-lg-4">
+                        <div class="col-sm-12 col-md-6 mb-2 col-lg-4" style="display:none;">
                             <div class="form-group">
                                 <label><?php echo lang('supplier'); ?> <span class="required_star">*</span></label>
-                                
                                     <div class="d-flex align-items-center">
                                         <div class="w-100">
                                             <select tabindex="2" class="form-control select2" id="supplier_id"
                                                 name="supplier_id">
                                                 <option value=""><?php echo lang('select'); ?></option>
                                                 <?php
+                                                $first_supplier = true;
                                                 foreach ($suppliers as $splrs) {
                                                     ?>
                                                 <option value="<?php echo escape_output($splrs->id) ?>"
+                                                    <?php echo $first_supplier ? 'selected="selected"' : ''; ?>
                                                     <?php echo set_select('supplier_id', $splrs->id); ?>>
                                                     <?php echo escape_output($splrs->name) ?></option>
-                                                <?php } ?>
+                                                <?php $first_supplier = false; } ?>
                                             </select>
                                         </div>
                                         <div> 
@@ -161,7 +162,7 @@
                     </div>
 
 
-                    <div class="row">
+                    <div class="row" style="display:none;" id="purchase_payment_section">
                         <div class="col-md-8"></div>
                         <div class="col-md-3">
                             <div class="form-group">
@@ -373,3 +374,45 @@
     </div>
 
 </section>
+
+<script>
+// ── POS Modal: Auto-fill Purchase payment fields ──────────────────
+(function() {
+    // 1. Auto-select first payment method option (Cash)
+    var paymentSel = document.getElementById('payment_id');
+    if (paymentSel) {
+        var firstReal = paymentSel.querySelector('option[value]:not([value=""])');
+        if (firstReal) {
+            firstReal.selected = true;
+            // trigger select2 if loaded
+            if (typeof $ !== 'undefined' && $.fn.select2) {
+                $(paymentSel).trigger('change');
+            }
+        }
+    }
+
+    // 2. Set Due = 0 always
+    var dueInput = document.getElementById('due');
+    if (dueInput) dueInput.value = '0';
+
+    // 3. Watch grand_total and mirror into paid, keep due=0
+    var grandTotal = document.getElementById('grand_total');
+    var paidInput  = document.getElementById('paid');
+
+    function syncPaid() {
+        if (grandTotal && paidInput) {
+            paidInput.value = grandTotal.value || '0';
+        }
+        if (dueInput) dueInput.value = '0';
+    }
+
+    // Poll every 300ms because grand_total is filled by add_purchase.js dynamically
+    setInterval(syncPaid, 300);
+
+    // Also trigger on any direct change
+    if (grandTotal) {
+        grandTotal.addEventListener('change', syncPaid);
+        grandTotal.addEventListener('input',  syncPaid);
+    }
+})();
+</script>

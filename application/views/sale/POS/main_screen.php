@@ -965,10 +965,10 @@ if ($wl) {
                             class="veg_bev_item bg__green"><?php echo lang('vegetarian_items'); ?></a></li>
                     <li><a href="#" data-status="bev"
                             class="veg_bev_item bg__grey"><?php echo lang('beverage_items'); ?></a></li>
-                    <li><a href="#" data-status="combo" id="combo_item"
-                            class="bg__khoyre"><?php echo lang('combo'); ?></a></li>
-                    <li><a href="#" data-status=""
-                            class="get_prom_details bg__pink"><?php echo lang('View_Promo'); ?></a></li>
+                    <li><a href="#" id="open_add_production_modal"
+                            class="bg__khoyre" style="background:#b8860b;"><i class="fal fa-industry"></i> <?php echo lang('production'); ?></a></li>
+                    <li><a href="#" id="open_add_purchase_modal"
+                            class="bg__pink" style="background:#e83e8c;"><i class="fal fa-shopping-cart"></i> <?php echo lang('purchase'); ?></a></li>
                 </ul>
             </div>
         </div>
@@ -1705,8 +1705,82 @@ if ($wl) {
                             }
                         });
 
+                    // ── Inject CSS helper: hide sidebar & navbar inside iframe ──
+                    function injectIframeHideCSS(iframeEl) {
+                        try {
+                            var iDoc = iframeEl.contentDocument || iframeEl.contentWindow.document;
+                            var style = iDoc.createElement('style');
+                            style.innerHTML = [
+                                '.main-header, header.main-header { display: none !important; }',
+                                '.main-sidebar, aside.main-sidebar { display: none !important; }',
+                                '.main-sidebar2, aside.main-sidebar2 { display: none !important; }',
+                                '.content-wrapper { margin-left: 0 !important; margin-top: 0 !important; padding-top: 10px !important; }',
+                                '.wrapper { padding-top: 0 !important; }'
+                            ].join('');
+                            iDoc.head.appendChild(style);
+                        } catch(err) { /* cross-origin safety */ }
+                    }
+
+                    // ── Add Production Modal ──────────────────────────────
+                    $('#open_add_production_modal').on('click', function(e){
+                        e.preventDefault();
+                        $('#pos_production_modal_iframe').attr('src', '<?php echo base_url(); ?>Production/addEditProduction');
+                        $('#pos_production_modal').fadeIn(200);
+                    });
+                    $('#pos_production_modal_iframe').on('load', function(){
+                        injectIframeHideCSS(this);
+                    });
+                    $(document).on('click', '#pos_production_modal .pos_iframe_modal_close', function(){
+                        $('#pos_production_modal').fadeOut(200);
+                        $('#pos_production_modal_iframe').attr('src','');
+                    });
+
+                    // ── Add Purchase Modal ────────────────────────────────
+                    $('#open_add_purchase_modal').on('click', function(e){
+                        e.preventDefault();
+                        $('#pos_purchase_modal_iframe').attr('src', '<?php echo base_url(); ?>Purchase/addEditPurchase');
+                        $('#pos_purchase_modal').fadeIn(200);
+                    });
+                    $('#pos_purchase_modal_iframe').on('load', function(){
+                        injectIframeHideCSS(this);
+                    });
+                    $(document).on('click', '#pos_purchase_modal .pos_iframe_modal_close', function(){
+                        $('#pos_purchase_modal').fadeOut(200);
+                        $('#pos_purchase_modal_iframe').attr('src','');
+                    });
+
+                    // Close both modals on overlay click
+                    $(document).on('click', '#pos_production_modal, #pos_purchase_modal', function(e){
+                        if($(e.target).is('#pos_production_modal, #pos_purchase_modal')){
+                            $(this).fadeOut(200);
+                            $(this).find('iframe').attr('src','');
+                        }
+                    });
+
                     });
                 </script>
+
+                <!-- ── POS Add Production Modal ───────────────────────── -->
+                <div id="pos_production_modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; justify-content:center; align-items:center;">
+                    <div style="background:#fff; width:90%; max-width:1100px; height:88vh; border-radius:10px; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,0.4); position:relative; margin:auto; margin-top:4vh;">
+                        <div style="background:#b8860b; color:#fff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; font-size:16px;"><i class="fal fa-industry"></i>&nbsp; <?php echo lang('production'); ?></span>
+                            <span class="pos_iframe_modal_close" style="cursor:pointer; font-size:22px; line-height:1;">&times;</span>
+                        </div>
+                        <iframe id="pos_production_modal_iframe" src="" style="width:100%; height:calc(88vh - 46px); border:none;"></iframe>
+                    </div>
+                </div>
+
+                <!-- ── POS Add Purchase Modal ─────────────────────────── -->
+                <div id="pos_purchase_modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; justify-content:center; align-items:center;">
+                    <div style="background:#fff; width:90%; max-width:1100px; height:88vh; border-radius:10px; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,0.4); position:relative; margin:auto; margin-top:4vh;">
+                        <div style="background:#e83e8c; color:#fff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; font-size:16px;"><i class="fal fa-shopping-cart"></i>&nbsp; <?php echo lang('purchase'); ?></span>
+                            <span class="pos_iframe_modal_close" style="cursor:pointer; font-size:22px; line-height:1;">&times;</span>
+                        </div>
+                        <iframe id="pos_purchase_modal_iframe" src="" style="width:100%; height:calc(88vh - 46px); border:none;"></iframe>
+                    </div>
+                </div>
 
             </div>
         </div>

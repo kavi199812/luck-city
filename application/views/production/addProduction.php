@@ -77,7 +77,7 @@
                                     <select tabindex="2" class="form-control select2" id="status"
                                             name="status">
                                         <option <?php echo set_select('status',0)?> value="0"><?php echo lang('Draft'); ?></option>
-                                        <option <?php echo set_select('status',1)?> value="1"><?php echo lang('Final'); ?></option>
+                                        <option <?php echo set_select('status',1)?> value="1" selected="selected"><?php echo lang('Final'); ?></option>
                                     </select>
                                 </div>
                             </div>

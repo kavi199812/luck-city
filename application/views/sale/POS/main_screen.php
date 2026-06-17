@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //get company information
 $getCompanyInfo = getCompanyInfo();
 $data_c = getLanguageManifesto();
@@ -965,6 +965,8 @@ if ($wl) {
                             class="veg_bev_item bg__green"><?php echo lang('vegetarian_items'); ?></a></li>
                     <li><a href="#" data-status="bev"
                             class="veg_bev_item bg__grey"><?php echo lang('beverage_items'); ?></a></li>
+                    <li><button type="button" id="add_waste_btn"
+                            class="bg__red" style="background:#dc3545; color:white; border:none; cursor:pointer; padding:5px 10px; border-radius:4px;"><i class="fas fa-trash-alt"></i> Add Waste</button></li>
                     <li><a href="#" id="open_add_production_modal"
                             class="bg__khoyre" style="background:#b8860b;"><i class="fal fa-industry"></i> <?php echo lang('production'); ?></a></li>
                     <li><a href="#" id="open_add_purchase_modal"
@@ -1813,6 +1815,7 @@ if ($wl) {
                         <?php echo lang('beverage_items'); ?></a></li>
                 <li><a href="#" data-status="veg" class="veg_bev_item"><i class="far fa-carrot"></i>
                         <?php echo lang('vegetarian_items'); ?></a></li>
+                <li><button type="button" id="add_waste_btn_mobile" style="background:none; border:none; cursor:pointer; color:#dc3545; padding:8px 0; width:100%; text-align:left;"><i class="far fa-trash-alt"></i> Add Waste</button></li>
                 <li><a href="#" data-status="" class="get_prom_details"><i class="fas fa-poo"></i>
                         <?php echo lang('View_Promo'); ?></a></li>
                 <li>
@@ -5273,6 +5276,70 @@ if ($wl) {
             const r6 = mh6 !== undefined ? mh6 : 0;
             $('body').find('.main_center').css('height', winHeight - r1 - r2 - r3 - r4 - r5 - r6 - 50 + 'px');
         }
+    </script>
+
+    <!-- Add Waste POS Feature -->
+    <script type="text/javascript">
+        // Uses SweetAlert v1 (swal) - matching this project's installed library
+        $(document).on('click', '#add_waste_btn, #add_waste_btn_mobile', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            swal({
+                title: '<?php echo lang('are_you_sure'); ?>',
+                text: 'This will waste all Pre-Made Food currently in stock.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Yes, Waste All!',
+                cancelButtonText: 'Cancel'
+            }, function(isConfirm) {
+                if (!isConfirm) return;
+
+                swal({
+                    title: 'Processing...',
+                    text: 'Please wait...',
+                    type: 'info',
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                });
+
+                $.ajax({
+                    url: '<?php echo base_url(); ?>Waste/autoWastePreMadeFoods',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        '<?php echo $this->security->get_csrf_token_name(); ?>': $('input[name="<?php echo $this->security->get_csrf_token_name(); ?>"]').val() || '<?php echo $this->security->get_csrf_hash(); ?>'
+                    },
+                    success: function(response) {
+                        if (response && response.status === 'success') {
+                            swal({
+                                type: 'success',
+                                title: 'Done!',
+                                text: response.message
+                            }, function() {
+                                location.reload();
+                            });
+                        } else {
+                            swal({
+                                type: 'info',
+                                title: 'Notice',
+                                text: response ? response.message : 'No Pre-Made Food in stock.'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Add Waste Error:', xhr.responseText);
+                        swal({
+                            type: 'error',
+                            title: 'Error',
+                            text: 'Something went wrong. Please try again.'
+                        });
+                    }
+                });
+            });
+        });
     </script>
 
     <!--for datatable-->

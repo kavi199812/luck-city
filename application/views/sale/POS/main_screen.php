@@ -939,13 +939,7 @@ if ($wl) {
 
             <!-- Right Header Menu List-->
             <div class="header_part_right">
-                <ul class="btn__menu btn__menu_left <?php echo escape_output($is_self_order_class) ?>">
-                    <li>
-                        <div class="pos_outlet_info irestora_font_div_pos">
-                            <?php echo escape_output($this->session->userdata('outlet_name')) ?>
-                        </div>
-                    </li>
-                </ul>
+
                 <ul class="btn__menu">
                     <li class="<?php echo escape_output($is_self_order_class) ?>">
                         <a href="#" id="pull_running_order" data-tippy-content="Pull your running orders"
@@ -966,11 +960,11 @@ if ($wl) {
                     <li><a href="#" data-status="bev"
                             class="veg_bev_item bg__grey"><?php echo lang('beverage_items'); ?></a></li>
                     <li><button type="button" id="add_waste_btn"
-                            class="bg__red" style="background:#dc3545; color:white; border:none; cursor:pointer; padding:5px 10px; border-radius:4px;"><i class="fas fa-trash-alt"></i> Add Waste</button></li>
+                            class="bg__red" style="background:#dc3545; color:white; border:none; cursor:pointer; padding:0 10px; height: 34px; display: inline-flex; align-items: center; gap: 5px; border-radius:4px;"><i class="fas fa-trash-alt"></i> Add Waste</button></li>
                     <li><a href="#" id="open_add_production_modal"
-                            class="bg__khoyre" style="background:#b8860b;"><i class="fal fa-industry"></i> <?php echo lang('production'); ?></a></li>
+                            class="bg__khoyre" style="background:#b8860b; height: 34px; display: inline-flex; align-items: center; gap: 5px;"><i class="fal fa-industry"></i> <?php echo lang('production'); ?></a></li>
                     <li><a href="#" id="open_add_purchase_modal"
-                            class="bg__pink" style="background:#e83e8c;"><i class="fal fa-shopping-cart"></i> <?php echo lang('purchase'); ?></a></li>
+                            class="bg__pink" style="background:#e83e8c; height: 34px; display: inline-flex; align-items: center; gap: 5px;"><i class="fal fa-shopping-cart"></i> <?php echo lang('purchase'); ?></a></li>
                 </ul>
             </div>
         </div>

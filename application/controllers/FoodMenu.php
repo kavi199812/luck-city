@@ -158,15 +158,21 @@ class FoodMenu extends Cl_Controller {
 
             $tax_information = array();
             $tax_string ='';
-            if(!empty($_POST['tax_field_percentage'])){
-                foreach($this->input->post('tax_field_percentage') as $key=>$value){
+            $tax_field_percentage_post = $this->input->post('tax_field_percentage');
+            if(is_array($tax_field_percentage_post)){
+                $tax_field_id_post = $this->input->post('tax_field_id');
+                $tax_field_company_id_post = $this->input->post('tax_field_company_id');
+                $tax_field_name_post = $this->input->post('tax_field_name');
+                foreach($tax_field_percentage_post as $key=>$value){
                     $single_info = array(
-                        'tax_field_id' => $this->input->post('tax_field_id')[$key],
-                        'tax_field_company_id' => $this->input->post('tax_field_company_id')[$key],
-                        'tax_field_name' => $this->input->post('tax_field_name')[$key],
-                        'tax_field_percentage' => ($this->input->post('tax_field_percentage')[$key]=="")?0:$this->input->post('tax_field_percentage')[$key]
+                        'tax_field_id' => isset($tax_field_id_post[$key]) ? $tax_field_id_post[$key] : '',
+                        'tax_field_company_id' => isset($tax_field_company_id_post[$key]) ? $tax_field_company_id_post[$key] : '',
+                        'tax_field_name' => isset($tax_field_name_post[$key]) ? $tax_field_name_post[$key] : '',
+                        'tax_field_percentage' => (isset($tax_field_percentage_post[$key]) && $tax_field_percentage_post[$key] != "") ? $tax_field_percentage_post[$key] : 0
                     );
-                    $tax_string.=($this->input->post('tax_field_name')[$key]).":";
+                    if (isset($tax_field_name_post[$key])) {
+                        $tax_string .= $tax_field_name_post[$key] . ":";
+                    }
                     array_push($tax_information,$single_info);
                 }
             }
@@ -178,7 +184,7 @@ class FoodMenu extends Cl_Controller {
             $this->form_validation->set_rules('description', lang('description'), 'max_length[200]');
             $this->form_validation->set_rules('sale_price', lang('sale_price')." ".lang('dine'), 'required|max_length[50]');
             $this->form_validation->set_rules('sale_price_take_away', lang('sale_price')." ".lang('take_away'), 'required|max_length[50]');
-            if ($_FILES['photo']['name'] != "") {
+            if (isset($_FILES['photo']) && isset($_FILES['photo']['name']) && $_FILES['photo']['name'] != "") {
                 $this->form_validation->set_rules('photo', lang('photo'), 'callback_validate_photo');
             }
 
@@ -218,14 +224,14 @@ class FoodMenu extends Cl_Controller {
                 //This variable could not be escaped because this is an array field
                 $delivery_person = $this->input->post($this->security->xss_clean('delivery_person'));
                 $json_data = array();
-                if(isset($delivery_person) && $delivery_person){
+                if(is_array($delivery_person)){
                     foreach ($delivery_person as $row => $value):
-                        $json_data["index_".$value] = $_POST['sale_price_delivery_json'][$row];
+                        $json_data["index_".$value] = (isset($_POST['sale_price_delivery_json'][$row])) ? $_POST['sale_price_delivery_json'][$row] : 0;
                     endforeach;
                 }
                 $food_menu_info['delivery_price'] = json_encode($json_data);
 
-                if ($_FILES['photo']['name'] != "") {
+                if (isset($_FILES['photo']) && isset($_FILES['photo']['name']) && $_FILES['photo']['name'] != "") {
                     $food_menu_info['photo'] = $this->session->userdata('photo');
                     $this->session->unset_userdata('photo');
                 }
@@ -253,115 +259,117 @@ class FoodMenu extends Cl_Controller {
 
                 $vr_tax_counter = $this->input->post($this->security->xss_clean('vr_tax_counter'));
                 $is_variation = 0;
-                if(isset($vr_tax_counter) && $vr_tax_counter){
+                if(is_array($vr_tax_counter) && $vr_tax_counter){
                     $is_variation = 1;
-                    if(!empty($_POST['vr_tax_counter'])){
-                        $i = 1;
-                        foreach($this->input->post('vr_tax_counter') as $key=>$value){
-                            $vr01_tax_field_id = "vr01_tax_field_id".$i;
-                            $vr01_tax_field_company_id = "vr01_tax_field_company_id".$i;
-                            $vr01_tax_field_name = "vr01_tax_field_name".$i;
-                            $vr01_tax_field_percentage = "vr01_tax_field_percentage".$i;
+                    $i = 1;
+                    foreach($vr_tax_counter as $key=>$value){
+                        $vr01_tax_field_id = "vr01_tax_field_id".$i;
+                        $vr01_tax_field_company_id = "vr01_tax_field_company_id".$i;
+                        $vr01_tax_field_name = "vr01_tax_field_name".$i;
+                        $vr01_tax_field_percentage = "vr01_tax_field_percentage".$i;
 
-                            $tax_information_variation = array();
-                            $tax_string ='';
+                        $tax_information_variation = array();
+                        $tax_string ='';
 
-                            $vr_tax_percentage_post = $this->input->post($vr01_tax_field_percentage);
-                            if(is_array($vr_tax_percentage_post)){
-                                foreach($vr_tax_percentage_post as $key1=>$value1){
-                                    $single_info = array(
-                                        'tax_field_id' => isset($this->input->post($vr01_tax_field_id)[$key1]) ? $this->input->post($vr01_tax_field_id)[$key1] : '',
-                                        'tax_field_company_id' => isset($this->input->post($vr01_tax_field_company_id)[$key1]) ? $this->input->post($vr01_tax_field_company_id)[$key1] : '',
-                                        'tax_field_name' => isset($this->input->post($vr01_tax_field_name)[$key1]) ? $this->input->post($vr01_tax_field_name)[$key1] : '',
-                                        'tax_field_percentage' => ($vr_tax_percentage_post[$key1]=="")?0:$vr_tax_percentage_post[$key1]
-                                    );
-                                    if(isset($this->input->post($vr01_tax_field_name)[$key1])){
-                                        $tax_string.=($this->input->post($vr01_tax_field_name)[$key1]).":";
-                                    }
-                                    array_push($tax_information_variation,$single_info);
+                        $vr_tax_percentage_post = $this->input->post($vr01_tax_field_percentage);
+                        if(is_array($vr_tax_percentage_post)){
+                            $vr_tax_id_post = $this->input->post($vr01_tax_field_id);
+                            $vr_tax_company_post = $this->input->post($vr01_tax_field_company_id);
+                            $vr_tax_name_post = $this->input->post($vr01_tax_field_name);
+                            foreach($vr_tax_percentage_post as $key1=>$value1){
+                                $single_info = array(
+                                    'tax_field_id' => isset($vr_tax_id_post[$key1]) ? $vr_tax_id_post[$key1] : '',
+                                    'tax_field_company_id' => isset($vr_tax_company_post[$key1]) ? $vr_tax_company_post[$key1] : '',
+                                    'tax_field_name' => isset($vr_tax_name_post[$key1]) ? $vr_tax_name_post[$key1] : '',
+                                    'tax_field_percentage' => ($value1 == "") ? 0 : $value1
+                                );
+                                if(isset($vr_tax_name_post[$key1])){
+                                    $tax_string .= $vr_tax_name_post[$key1] . ":";
                                 }
+                                array_push($tax_information_variation,$single_info);
                             }
+                        }
 
+                        $variation_name_post = $this->input->post('variation_name');
+                        $var01_grand_total_cost_arr = $this->input->post('var01_grand_total_cost_arr');
+                        $m_sale_price = $this->input->post('m_sale_price');
+                        $m_sale_price_take_away = $this->input->post('m_sale_price_take_away');
+                        $m_sale_price_delivery = $this->input->post('m_sale_price_delivery');
+                        $variation_ingrs = $this->input->post('variation_ingrs');
+                        $hidden_delivery_html = $this->input->post('hidden_delivery_html');
+                        $vr01_loyalty_point_arr = $this->input->post('vr01_loyalty_point_arr');
+                        $variation_row_update = $this->input->post('variation_row_update');
 
-                            $food_menu_info_vr = array();
-                            $food_menu_info_vr['name'] = $this->input->post('variation_name')[$key];
-                            $food_menu_info_vr['total_cost'] = $this->input->post('var01_grand_total_cost_arr')[$key];
-                            $food_menu_info_vr['code'] = $food_menu_info['code']."-".(generateCode($i));
-                            $food_menu_info_vr['category_id'] =htmlspecialcharscustom($this->input->post($this->security->xss_clean('category_id')));
-                            $food_menu_info_vr['veg_item'] =htmlspecialcharscustom($this->input->post($this->security->xss_clean('veg_item')));
-                            $food_menu_info_vr['beverage_item'] =htmlspecialcharscustom($this->input->post($this->security->xss_clean('beverage_item')));
-                            $food_menu_info_vr['description'] =htmlspecialcharscustom($this->input->post($this->security->xss_clean('description')));
-                            $food_menu_info_vr['sale_price'] =$this->input->post('m_sale_price')[$key];
-                            $food_menu_info_vr['sale_price_take_away'] =$this->input->post('m_sale_price_take_away')[$key];
-                            $food_menu_info_vr['sale_price_delivery'] =$this->input->post('m_sale_price_delivery')[$key];
-                            $food_menu_info_vr['vr_ingr'] =$this->input->post('variation_ingrs')[$key];
-                            $food_menu_info_vr['vr_del_details'] =$this->input->post('hidden_delivery_html')[$key];
-                            $food_menu_info_vr['loyalty_point'] =$this->input->post('vr01_loyalty_point_arr')[$key];
-                            $food_menu_info_vr['tax_information'] = json_encode($tax_information_variation);
-                            $food_menu_info_vr['tax_string'] = $tax_string;
-                            $food_menu_info_vr['user_id'] = $this->session->userdata('user_id');
-                            $food_menu_info_vr['company_id'] = $this->session->userdata('company_id');
-                            if (isset($food_menu_info['photo'])) {
-                                $food_menu_info_vr['photo'] =  $food_menu_info['photo'];
-                            }
-                            $food_menu_info_vr['parent_id'] =  $id;
-                            $food_menu_info_vr['del_status'] =  "Live";
+                        $food_menu_info_vr = array();
+                        $food_menu_info_vr['name'] = isset($variation_name_post[$key]) ? $variation_name_post[$key] : '';
+                        $food_menu_info_vr['total_cost'] = isset($var01_grand_total_cost_arr[$key]) ? $var01_grand_total_cost_arr[$key] : 0;
+                        $food_menu_info_vr['code'] = (isset($food_menu_info['code']) ? $food_menu_info['code'] : '') . "-" . (generateCode($i));
+                        $food_menu_info_vr['category_id'] = htmlspecialcharscustom($this->input->post($this->security->xss_clean('category_id')));
+                        $food_menu_info_vr['veg_item'] = htmlspecialcharscustom($this->input->post($this->security->xss_clean('veg_item')));
+                        $food_menu_info_vr['beverage_item'] = htmlspecialcharscustom($this->input->post($this->security->xss_clean('beverage_item')));
+                        $food_menu_info_vr['description'] = htmlspecialcharscustom($this->input->post($this->security->xss_clean('description')));
+                        $food_menu_info_vr['sale_price'] = isset($m_sale_price[$key]) ? $m_sale_price[$key] : 0;
+                        $food_menu_info_vr['sale_price_take_away'] = isset($m_sale_price_take_away[$key]) ? $m_sale_price_take_away[$key] : 0;
+                        $food_menu_info_vr['sale_price_delivery'] = isset($m_sale_price_delivery[$key]) ? $m_sale_price_delivery[$key] : 0;
+                        $food_menu_info_vr['vr_ingr'] = isset($variation_ingrs[$key]) ? $variation_ingrs[$key] : '';
+                        $food_menu_info_vr['vr_del_details'] = isset($hidden_delivery_html[$key]) ? $hidden_delivery_html[$key] : '';
+                        $food_menu_info_vr['loyalty_point'] = isset($vr01_loyalty_point_arr[$key]) ? $vr01_loyalty_point_arr[$key] : 0;
+                        $food_menu_info_vr['tax_information'] = json_encode($tax_information_variation);
+                        $food_menu_info_vr['tax_string'] = $tax_string;
+                        $food_menu_info_vr['user_id'] = $this->session->userdata('user_id');
+                        $food_menu_info_vr['company_id'] = $this->session->userdata('company_id');
+                        if (isset($food_menu_info['photo'])) {
+                            $food_menu_info_vr['photo'] =  $food_menu_info['photo'];
+                        }
+                        $food_menu_info_vr['parent_id'] =  $id;
+                        $food_menu_info_vr['del_status'] =  "Live";
 
-                            $hidden_delivery_html = $this->input->post($this->security->xss_clean('hidden_delivery_html'));
-                            $json_data = array();
-
-                            if(isset($hidden_delivery_html) && isset($hidden_delivery_html[$key]) && $hidden_delivery_html[$key]){
-                                $variation_ingrs_total = explode('|||',$hidden_delivery_html[$key]);
-                                foreach ($variation_ingrs_total as $row => $value_1):
-                                    if(trim($value_1) != '') {
-                                        $data_value = explode("||",$value_1);
-                                        if(isset($data_value[1])){
-                                            $json_data["index_".$data_value[1]] = $data_value[0];
-                                        }
+                        $json_data = array();
+                        if(is_array($hidden_delivery_html) && isset($hidden_delivery_html[$key]) && $hidden_delivery_html[$key]){
+                            $variation_ingrs_total = explode('|||',$hidden_delivery_html[$key]);
+                            foreach ($variation_ingrs_total as $row => $value_1):
+                                if(trim($value_1) != '') {
+                                    $data_value = explode("||",$value_1);
+                                    if(isset($data_value[1])){
+                                        $json_data["index_".$data_value[1]] = $data_value[0];
                                     }
-                                endforeach;
-                            }
-                            $food_menu_info_vr['delivery_price'] = json_encode($json_data);
-                            $i++;
-                            $old_id = $this->input->post('variation_row_update')[$key];
-                            if(isset($old_id) && $old_id){
-                                $new_variation_id = $this->Common_model->updateInformation($food_menu_info_vr, $old_id, "tbl_food_menus");
-                                if(isLMni()):
-                                    updatePrice($this->session->userdata('company_id'),$old_id,$this->input->post('m_sale_price')[$key],$this->input->post('m_sale_price_take_away')[$key],$food_menu_info_vr['delivery_price'],$food_menu_info_vr['sale_price_delivery']);
-                                endif;
-                            }else{
-                                $new_variation_id = $this->Common_model->insertInformation($food_menu_info_vr, "tbl_food_menus");
-                                if(isLMni()):
-                                    updatePrice($this->session->userdata('company_id'),$new_variation_id,$this->input->post('m_sale_price')[$key],$this->input->post('m_sale_price_take_away')[$key],$food_menu_info_vr['delivery_price'],$food_menu_info_vr['sale_price_delivery']);
-                                endif;
-                            }
+                                }
+                            endforeach;
+                        }
+                        $food_menu_info_vr['delivery_price'] = json_encode($json_data);
+                        $i++;
+                        $old_id = isset($variation_row_update[$key]) ? $variation_row_update[$key] : '';
+                        if(isset($old_id) && $old_id){
+                            $new_variation_id = $this->Common_model->updateInformation($food_menu_info_vr, $old_id, "tbl_food_menus");
+                            if(isLMni()):
+                                updatePrice($this->session->userdata('company_id'),$old_id,(isset($m_sale_price[$key]) ? $m_sale_price[$key] : 0),(isset($m_sale_price_take_away[$key]) ? $m_sale_price_take_away[$key] : 0),$food_menu_info_vr['delivery_price'],$food_menu_info_vr['sale_price_delivery']);
+                            endif;
+                        }else{
+                            $new_variation_id = $this->Common_model->insertInformation($food_menu_info_vr, "tbl_food_menus");
+                            if(isLMni()):
+                                updatePrice($this->session->userdata('company_id'),$new_variation_id,(isset($m_sale_price[$key]) ? $m_sale_price[$key] : 0),(isset($m_sale_price_take_away[$key]) ? $m_sale_price_take_away[$key] : 0),$food_menu_info_vr['delivery_price'],$food_menu_info_vr['sale_price_delivery']);
+                            endif;
+                        }
 
-                            $this->Common_model->deletingMultipleFormData('food_menu_id', $new_variation_id, 'tbl_food_menus_ingredients');
+                        $this->Common_model->deletingMultipleFormData('food_menu_id', $new_variation_id, 'tbl_food_menus_ingredients');
 
-
-                            $variation_ingrs = $this->input->post($this->security->xss_clean('variation_ingrs'));
-
-                            if(isset($variation_ingrs) && $variation_ingrs){
-                                $variation_ingrs_arr = explode("|||",$variation_ingrs[$key]);
-                                if(isset($variation_ingrs_arr) && $variation_ingrs_arr){
-                                    foreach ($variation_ingrs_arr as $row => $single_array):
-                                        $single_array_arr = explode("||",$single_array);
+                        if(is_array($variation_ingrs) && isset($variation_ingrs[$key])){
+                            $variation_ingrs_arr = explode("|||",$variation_ingrs[$key]);
+                            if(is_array($variation_ingrs_arr) && $variation_ingrs_arr){
+                                foreach ($variation_ingrs_arr as $row => $single_array):
+                                    $single_array_arr = explode("||",$single_array);
                                     if(isset($single_array_arr[1]) && $single_array_arr[1]){
                                         $fmi = array();
                                         $fmi['ingredient_id'] = $single_array_arr[1];
-                                        $fmi['consumption'] = $single_array_arr[3];
-                                        $fmi['cost'] = $single_array_arr[4];
-                                        $fmi['total'] = $single_array_arr[5];
+                                        $fmi['consumption'] = isset($single_array_arr[3]) ? $single_array_arr[3] : 0;
+                                        $fmi['cost'] = isset($single_array_arr[4]) ? $single_array_arr[4] : 0;
+                                        $fmi['total'] = isset($single_array_arr[5]) ? $single_array_arr[5] : 0;
                                         $fmi['food_menu_id'] = $new_variation_id;
                                         $fmi['user_id'] = $this->session->userdata('user_id');
                                         $fmi['company_id'] = $this->session->userdata('company_id');
-                                        if(isset($single_array_arr[1]) && $single_array_arr[1]){
-                                            $this->Common_model->insertInformation($fmi, "tbl_food_menus_ingredients");
-                                        }
+                                        $this->Common_model->insertInformation($fmi, "tbl_food_menus_ingredients");
                                     }
-                                    endforeach;
-                                }
-
+                                endforeach;
                             }
                         }
                     }
@@ -372,19 +380,20 @@ class FoodMenu extends Cl_Controller {
 
                 $food_menu_id_hidden = $this->input->post($this->security->xss_clean('food_menu_id_hidden'));
                 $combo_ids = '';
-                if(isset($food_menu_id_hidden) && $food_menu_id_hidden && $product_type==2){
+                if(is_array($food_menu_id_hidden) && $product_type==2){
                     foreach ($food_menu_id_hidden as $row => $single_array):
                         $single_array_arr = explode("||",$single_array);
                         $fmi = array();
-                        $fmi['name'] = trim_checker($single_array_arr[1]);
+                        $fmi['name'] = isset($single_array_arr[1]) ? trim_checker($single_array_arr[1]) : '';
                         $fmi['food_menu_id'] = $id;
-                        $fmi['added_food_menu_id'] = $single_array_arr[0];
-                        $fmi['quantity'] = $_POST['qty_food_menu'][$row];
+                        $fmi['added_food_menu_id'] = isset($single_array_arr[0]) ? $single_array_arr[0] : '';
+                        $fmi['quantity'] = isset($_POST['qty_food_menu'][$row]) ? $_POST['qty_food_menu'][$row] : 0;
                         $fmi['user_id'] = $this->session->userdata('user_id');
                         $fmi['company_id'] = $this->session->userdata('company_id');
                         $this->Common_model->insertInformation($fmi, "tbl_combo_food_menus");
-                        $combo_ids.=$single_array_arr[0];
-                        $combo_ids.=",";
+                        if (isset($single_array_arr[0])) {
+                            $combo_ids.=$single_array_arr[0] . ",";
+                        }
                     endforeach;
                 }
                 $data_combo_ids['is_variation'] = $is_variation;
@@ -528,7 +537,7 @@ class FoodMenu extends Cl_Controller {
      */
     public function validate_photo() {
 
-        if ($_FILES['photo']['name'] != "") {
+        if (isset($_FILES['photo']) && isset($_FILES['photo']['name']) && $_FILES['photo']['name'] != "") {
             $config['upload_path'] = './images';
             $config['allowed_types'] = 'jpg|jpeg|png';
             $config['max_size'] = '2048';
@@ -566,13 +575,13 @@ class FoodMenu extends Cl_Controller {
      * @param string
      */
     public function saveFoodMenusIngredients($food_menu_ingredients, $food_menu_id, $table_name) {
-        if(isset($food_menu_ingredients) && $food_menu_ingredients){
+        if(is_array($food_menu_ingredients)){
             foreach ($food_menu_ingredients as $row => $ingredient_id):
                 $fmi = array();
                 $fmi['ingredient_id'] = $ingredient_id;
-                $fmi['consumption'] = $_POST['consumption'][$row];
-                $fmi['cost'] = $_POST['cost'][$row];
-                $fmi['total'] = $_POST['total_cost'][$row];
+                $fmi['consumption'] = isset($_POST['consumption'][$row]) ? $_POST['consumption'][$row] : 0;
+                $fmi['cost'] = isset($_POST['cost'][$row]) ? $_POST['cost'][$row] : 0;
+                $fmi['total'] = isset($_POST['total_cost'][$row]) ? $_POST['total_cost'][$row] : 0;
                 $fmi['food_menu_id'] = $food_menu_id;
                 $fmi['user_id'] = $this->session->userdata('user_id');
                 $fmi['company_id'] = $this->session->userdata('company_id');
@@ -590,14 +599,16 @@ class FoodMenu extends Cl_Controller {
      * @param string
      */
     public function saveFoodMenusModifiers($food_menu_modifiers, $food_menu_id, $table_name) {
-        foreach ($food_menu_modifiers as $row => $modifier_id):
-            $fmm = array();
-            $fmm['modifier_id'] = $modifier_id;
-            $fmm['food_menu_id'] = $food_menu_id;
-            $fmm['user_id'] = $this->session->userdata('user_id');
-            $fmm['company_id'] = $this->session->userdata('company_id');
-            $this->Common_model->insertInformation($fmm, "tbl_food_menus_modifiers");
-        endforeach;
+        if(is_array($food_menu_modifiers)){
+            foreach ($food_menu_modifiers as $row => $modifier_id):
+                $fmm = array();
+                $fmm['modifier_id'] = $modifier_id;
+                $fmm['food_menu_id'] = $food_menu_id;
+                $fmm['user_id'] = $this->session->userdata('user_id');
+                $fmm['company_id'] = $this->session->userdata('company_id');
+                $this->Common_model->insertInformation($fmm, "tbl_food_menus_modifiers");
+            endforeach;
+        }
     }
      /**
      * upload Food Menu

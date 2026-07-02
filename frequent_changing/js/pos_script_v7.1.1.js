@@ -785,11 +785,28 @@
                         order_list_left += `<li>No items found</li>`;
                     } */
 
+                    let table_html = "";
+                    if (tables_booked && tables_booked !== "None" && tables_booked.trim() !== "") {
+                        table_html = `<p class="running_order_table_booked_display"><i class="fal fa-table"></i> ${tables_booked}</p>`;
+                    }
+
+                    let items_html = "";
+                    if (Array.isArray(rowData.items) && rowData.items.length > 0) {
+                        items_html += '<div class="running_order_items_list" style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.4); padding-top: 6px;">';
+                        rowData.items.forEach(function (item) {
+                            let qty = item.qty || item.quantity || 1;
+                            items_html += `<p style="font-size: 12px; margin: 2px 0; font-weight: normal; opacity: 0.95;"><i class="fal fa-circle" style="font-size: 6px; vertical-align: middle; margin-right: 5px;"></i> ${item.menu_name} <span style="font-weight: bold; float: right;">x${qty}</span></p>`;
+                        });
+                        items_html += '</div>';
+                    }
+
                     order_list_left += `
+                                ${table_html}
                                 <span id="open_orders_order_status_${sales_id}" class="ir_display_none">${rowData.order_status}</span>
                                 <p><span class="running_order_customer_name">Name: ${customer_name}</span></p>
                                 <p><span class="running_order_customer_phone">Phone: ${rowData.customer_phone || "N/A"}</span></p>
                                 <p class="oder_list_class">Order: <span data-added_offline_status="${orderData.added_offline_status}" class="running_order_order_number">${rowData.sale_no}</span></p>
+                                ${items_html}
                                 <i class="far fa-chevron-right running_order_right_arrow" id="running_order_right_arrow_${sales_id}"></i>
                             </div>
                         </div>

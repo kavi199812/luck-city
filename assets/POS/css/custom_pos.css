@@ -88,3 +88,48 @@
 .delivery_button[data-selected="selected"] i {
     color: #fff !important;
 }
+
+/* Override running order container height to support collapse/expand */
+.inside_single_order_container {
+    height: 40px !important;
+    overflow: hidden;
+    transition: height 0.2s ease;
+}
+
+.inside_single_order_container.active {
+    height: auto !important;
+    padding-bottom: 5px;
+}
+
+/* Hide detailed paragraphs and items list for collapsed table orders */
+.inside_single_order_container:not(.active) .running_order_table_booked_display ~ p,
+.inside_single_order_container:not(.active) .running_order_table_booked_display ~ .running_order_items_list {
+    display: none !important;
+}
+
+/* Ensure font size and styles for table names look premium and fill the box */
+.running_order_table_booked_display {
+    font-size: 26px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    text-transform: uppercase;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2 !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Collapsed table order card - fill the red box */
+.inside_single_order_container:not(.active) .running_order_table_booked_display {
+    height: 40px;
+    border-bottom: none !important;
+}
+
+/* Expanded table order card - left align and show divider line */
+.inside_single_order_container.active .running_order_table_booked_display {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 8px !important;
+}

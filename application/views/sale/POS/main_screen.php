@@ -1134,7 +1134,7 @@ if ($wl) {
                             <button
                                 class="selected__btn_c  <?php echo escape_output($is_self_order_class) ?> dine_in_button"
                                 data-id="dine_in_button" data-selected="<?php echo escape_output($selected) ?>">
-                                <i class="fal fa-table"></i> <?php echo lang('dine'); ?>
+                                <i class="fal fa-table"></i> Table
                             </button>
 
                             <?php
@@ -1150,7 +1150,7 @@ if ($wl) {
                                 class="selected__btn_c  <?php echo escape_output($is_self_order_class) ?> take_away_button"
                                 data-selected="<?php echo escape_output($selected) ?>" data-id="take_away_button"><i
                                     class="fal fa-shopping-bag"></i>
-                                <?php echo lang('take_away'); ?></button>
+                                Quick Order</button>
 
                             <?php
                             //for default order type select
@@ -1161,26 +1161,26 @@ if ($wl) {
                             }
                             ?>
                             <?php
-                            if (!isFoodCourt()):
-                                ?>
-                                <button
-                                    class="selected__btn_c  <?php echo escape_output($is_self_order_class) ?> delivery_button"
-                                    data-selected="<?php echo escape_output($selected) ?>" data-id="delivery_button"><i
-                                        class="fal fa-truck"></i>
-                                    <?php echo lang('delivery'); ?></button>
-                                <?php
-                            elseif ($this->session->userdata('role') == 'Admin'):
-                                ?>
-                                <button
-                                    class="selected__btn_c  <?php echo escape_output($is_self_order_class) ?> delivery_button"
-                                    data-selected="<?php echo escape_output($selected) ?>" data-id="delivery_button"><i
-                                        class="fal fa-truck"></i>
-                                    <?php echo lang('delivery'); ?></button>
-                                <?php
-                            endif;
-                            ?>
-
-
+                             if (isset($deliveryPartners) && $deliveryPartners):
+                                 if (!isFoodCourt()):
+                                     ?>
+                                     <button
+                                         class="selected__btn_c  <?php echo escape_output($is_self_order_class) ?> delivery_button"
+                                         data-selected="<?php echo escape_output($selected) ?>" data-id="delivery_button"><i
+                                             class="fal fa-truck"></i>
+                                         <?php echo lang('delivery'); ?></button>
+                                     <?php
+                                 elseif ($this->session->userdata('role') == 'Admin'):
+                                     ?>
+                                     <button
+                                         class="selected__btn_c  <?php echo escape_output($is_self_order_class) ?> delivery_button"
+                                         data-selected="<?php echo escape_output($selected) ?>" data-id="delivery_button"><i
+                                             class="fal fa-truck"></i>
+                                         <?php echo lang('delivery'); ?></button>
+                                     <?php
+                                 endif;
+                             endif;
+                             ?>
                         </div>
                         <?php if ($is_self_order == "Yes" && $is_online_order != "Yes"): ?>
                             <div class="self_order_table_person_wrapper">
@@ -1192,15 +1192,21 @@ if ($wl) {
                     <!-- End Top Btn -->
 
                     <div style="display: flex; justify-content: space-between; gap: 5px; margin-bottom: 10px; padding: 5px;" class="safe_button_holder">
-                        <button class="selected__btn_c safe_running_order_btn" data-id="dine_in_button" style="width: 32%; background-color: #dc3545; color: white; border: none; font-weight: bold; border-radius: 4px; padding: 10px 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <i class="fal fa-table"></i> <?php echo lang('dine'); ?>
+                        <?php
+                        $has_delivery = (isset($deliveryPartners) && $deliveryPartners);
+                        $btn_width = $has_delivery ? '32%' : '49%';
+                        ?>
+                        <button class="selected__btn_c safe_running_order_btn" data-id="dine_in_button" style="width: <?php echo $btn_width; ?>; background-color: #dc3545; color: white; border: none; font-weight: bold; border-radius: 4px; padding: 10px 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <i class="fal fa-table"></i> Table
                         </button>
-                        <button class="selected__btn_c safe_running_order_btn" data-id="take_away_button" style="width: 32%; background-color: #ffc107; color: #333; border: none; font-weight: bold; border-radius: 4px; padding: 10px 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <i class="fal fa-shopping-bag"></i> <?php echo lang('take_away'); ?>
+                        <button class="selected__btn_c safe_running_order_btn" data-id="take_away_button" style="width: <?php echo $btn_width; ?>; background-color: #ffc107; color: #333; border: none; font-weight: bold; border-radius: 4px; padding: 10px 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <i class="fal fa-shopping-bag"></i> Quick Order
                         </button>
-                        <button class="selected__btn_c safe_running_order_btn" data-id="delivery_button" style="width: 32%; background-color: #28a745; color: white; border: none; font-weight: bold; border-radius: 4px; padding: 10px 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <?php if ($has_delivery): ?>
+                        <button class="selected__btn_c safe_running_order_btn" data-id="delivery_button" style="width: <?php echo $btn_width; ?>; background-color: #28a745; color: white; border: none; font-weight: bold; border-radius: 4px; padding: 10px 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                             <i class="fal fa-truck"></i> <?php echo lang('delivery'); ?>
                         </button>
+                        <?php endif; ?>
                     </div>
 
                     <div class="waiter_customer">
@@ -1431,17 +1437,25 @@ if ($wl) {
                 <script>
                     $(document).ready(function () {
                         // Toggle Take Away Mode for bottom buttons
-                        function toggleTakeAwayMode() {
+                        // Toggle Take Away Mode for bottom buttons
+                        window.toggleTakeAwayMode = function() {
                             if ($('.take_away_button').attr('data-selected') == 'selected') {
                                 $('.button_group').addClass('take-away-mode');
                             } else {
                                 $('.button_group').removeClass('take-away-mode');
                             }
-                        }
+                        };
                         $(document).on('click', '.dine_in_button, .take_away_button, .delivery_button', function() {
-                            setTimeout(toggleTakeAwayMode, 100);
+                            setTimeout(window.toggleTakeAwayMode, 100);
                         });
-                        toggleTakeAwayMode();
+                        window.toggleTakeAwayMode();
+
+                        // Run a periodic check to keep button visibility perfectly in sync
+                        setInterval(function() {
+                            if (typeof window.toggleTakeAwayMode === 'function') {
+                                window.toggleTakeAwayMode();
+                            }
+                        }, 300);
 
                         // ── Inline product grid render ──────────────────────────────
                         function buildProductCard(item) {
@@ -1644,6 +1658,15 @@ if ($wl) {
                             $(this).find('iframe').attr('src','');
                         }
                     });
+
+                    // Trigger the first category tab click immediately once document is ready and items are loaded
+                    setTimeout(function() {
+                        var $firstTab = $('.cat-tab.active').first();
+                        if ($firstTab.length) {
+                            console.log("Auto-triggering first active category tab click on document ready");
+                            $firstTab.trigger('click');
+                        }
+                    }, 200);
 
                     });
                 </script>
@@ -2462,6 +2485,91 @@ if ($wl) {
     </div>
     <!-- end add customer modal -->
 
+    <!-- Dine In Table Selection Modal -->
+    <style>
+        .area-filter-btn:hover {
+            background: #3c3c5a !important;
+        }
+        .area-filter-btn.active {
+            background: #28a745 !important;
+            color: #fff !important;
+            box-shadow: 0 0 10px rgba(40,167,69,0.5);
+        }
+        .table-card-premium {
+            background: #252538;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .table-card-premium:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+        .table-card-premium.free {
+            border-top: 4px solid #28a745;
+        }
+        .table-card-premium.free:hover {
+            border-color: #28a745;
+        }
+        .table-card-premium.occupied {
+            border-top: 4px solid #dc3545;
+        }
+        .table-card-premium.occupied:hover {
+            border-color: #dc3545;
+        }
+        .status-badge {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .status-badge.free {
+            background: rgba(40, 167, 69, 0.15);
+            color: #28a745;
+        }
+        .status-badge.occupied {
+            background: rgba(220, 53, 69, 0.15);
+            color: #dc3545;
+        }
+    </style>
+    <div id="dine_in_table_modal" class="dine-in-modal-container display_none" style="position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center;">
+        <div class="dine-in-modal-content" style="background: #1e1e2d; color: #fff; margin: auto; padding: 20px; border-radius: 12px; width: 85%; max-width: 900px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.5); font-family: 'Outfit', sans-serif;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px;">
+                <h2 style="margin: 0; font-size: 24px; font-weight: 600; display: inline-flex; align-items: center; gap: 10px;"><i class="fal fa-table" style="color: #28a745;"></i> Select a Table</h2>
+                <a href="javascript:void(0)" class="close_dine_in_table_modal" style="color: #bbb; font-size: 24px; text-decoration: none;"><i class="fal fa-times"></i></a>
+            </div>
+
+            <!-- Filters Area (Hidden as requested) -->
+            <div style="display: none; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <div id="dine_in_area_filters" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <button class="area-filter-btn active" data-area="all" style="padding: 8px 16px; border-radius: 20px; border: none; background: #2a2a40; color: #fff; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">All Areas</button>
+                    <!-- Area buttons dynamically populated -->
+                </div>
+                <div style="position: relative; flex: 1; max-width: 300px;">
+                    <input type="text" id="dine_in_table_search" placeholder="Search table by name..." style="width: 100%; padding: 10px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: #2a2a40; color: #fff; font-size: 14px; outline: none; box-shadow: none;">
+                    <i class="far fa-search" style="position: absolute; right: 15px; top: 13px; color: #888;"></i>
+                </div>
+            </div>
+
+            <!-- Grid Container -->
+            <div id="dine_in_tables_grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: 5px;">
+                <!-- Tables dynamically populated -->
+            </div>
+            
+            <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="close_dine_in_table_modal" style="background: #3a3a50; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- The sale hold modal -->
     <div id="show_sale_hold_modal" class="modal">
         <div class="modal-content" id="modal_content_hold_sales">
@@ -2937,15 +3045,17 @@ if ($wl) {
                     <li class="custom_li_order_type" data-row="take_away_button">
                         <label class="label_c" for="dine_in_modal"><img
                                 src="<?php echo base_url() ?>assets/media/take_away.png" />
-                            <p class="dl_p_title"><?php echo lang('take_away'); ?></p>
+                            <p class="dl_p_title">Quick Order</p>
                         </label>
                     </li>
+                    <?php if (isset($deliveryPartners) && $deliveryPartners): ?>
                     <li class="custom_li_order_type" data-row="delivery_button">
                         <label class="label_c" for="dine_in_modal"><img
                                 src="<?php echo base_url() ?>assets/media/delivery.png" />
                             <p class="dl_p_title"><?php echo lang('delivery'); ?></p>
                         </label>
                     </li>
+                    <?php endif; ?>
                 </ul>
             </div>
             <footer class="pos__modal__footer">
@@ -5246,6 +5356,372 @@ if ($wl) {
     <script src="<?php echo base_url(); ?>frequent_changing/newDesign/js/forTable.js"></script>
     <script src="<?php echo base_url(); ?>frequent_changing/js/register_details.js"></script>
     
+    <!-- Dine In Table Modal Logic -->
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var base_url = $("base").attr("data-base") || '<?php echo base_url(); ?>';
+            var csrf_value_ = $("#csrf_value_").val();
+            var warning = $("#warning").val() || "Warning";
+            var ok = $("#ok").val() || "OK";
+            var cart_not_empty = $("#cart_not_empty").val() || "Cart is not empty! Do you want to clear it?";
+            var tablesData = [];
+
+            // Local helper to fetch data from IndexedDB since the one in pos_script is not globally exported
+            function get_all_information_from_indexeddb(sale_id) {
+                console.log("Local IndexedDB helper queried for sale_id: " + sale_id);
+                return new Promise(function (resolve, reject) {
+                    let request = window.indexedDB.open("irestora_plus", 1);
+                    request.onsuccess = function(event) {
+                        let localDb = request.result;
+                        let transaction = localDb.transaction(['sales'], "readonly");
+                        let objectStore = transaction.objectStore("sales");
+                        let getRequest = objectStore.get(Number(sale_id));
+                        getRequest.onsuccess = function(e) {
+                            console.log("Local IndexedDB lookup success. Result: ", getRequest.result);
+                            if (getRequest.result) {
+                                resolve(getRequest.result.order);
+                            } else {
+                                resolve(null);
+                            }
+                        };
+                        getRequest.onerror = function(e) {
+                            console.error("Local IndexedDB lookup error: ", e);
+                            reject(e);
+                        };
+                    };
+                    request.onerror = function(event) {
+                        console.error("Local IndexedDB database open error: ", event);
+                        reject(event);
+                    };
+                });
+            }
+
+            // Open Modal on Dine In Click
+            $(document).on('click', '.dine_in_button, .tablet_btn[data-id="1"], .safe_running_order_btn[data-id="dine_in_button"]', function(e) {
+                console.log("Dine In button clicked!");
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Close other modals if open
+                $("#dine_in_orders_modal").removeClass("active");
+                $(".pos__modal__overlay").fadeOut(100);
+
+                openDineInTableModal();
+            });
+
+            // Close Modal
+            $(document).on('click', '.close_dine_in_table_modal', function() {
+                $('#dine_in_table_modal').addClass('display_none').removeClass('active').css('display', 'none');
+                $(".pos__modal__overlay").fadeOut(200);
+            });
+
+            // Helper to merge IndexedDB order_tables with server-fetched table status
+            function mergeWithLocalTableBookings() {
+                return new Promise(function(resolve, reject) {
+                    let request = window.indexedDB.open("irestora_plus", 1);
+                    request.onsuccess = function(event) {
+                        let localDb = request.result;
+                        let transaction = localDb.transaction(['order_tables'], "readonly");
+                        let objectStore = transaction.objectStore("order_tables");
+                        
+                        // Reset all active order statuses locally first (since left panel is source of truth for offline)
+                        tablesData.forEach(function(t) {
+                            t.has_active_order = false;
+                            t.sale_id = '';
+                            t.sale_no = '';
+                        });
+
+                        objectStore.openCursor().onsuccess = function(e) {
+                            let cursor = e.target.result;
+                            if (cursor) {
+                                let row = cursor.value;
+                                let matchedTable = tablesData.find(function(t) {
+                                    return Number(t.id) === Number(row.table_id);
+                                });
+                                if (matchedTable) {
+                                    matchedTable.has_active_order = true;
+                                    matchedTable.sale_id = row.sale_id;
+                                    matchedTable.sale_no = row.sale_no;
+                                }
+                                cursor.continue();
+                            } else {
+                                resolve();
+                            }
+                        };
+                        objectStore.onerror = function(err) {
+                            console.error("Error reading order_tables cursor: ", err);
+                            resolve(); // Resolve anyway to fallback to server data
+                        };
+                    };
+                    request.onerror = function(err) {
+                        console.error("Error opening DB for merge: ", err);
+                        resolve(); // Resolve anyway
+                    };
+                });
+            }
+
+            function openDineInTableModal() {
+                var clean_url = base_url;
+                if (clean_url.charAt(clean_url.length - 1) !== '/') {
+                    clean_url += '/';
+                }
+                var ajaxUrl = clean_url + 'Sale/getTablesWithActiveOrders';
+                console.log("Fetching tables from URL: " + ajaxUrl);
+
+                $.ajax({
+                    url: ajaxUrl,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log("Tables data fetched successfully: ", data);
+                        tablesData = data;
+                        
+                        // Merge with local IndexedDB order_tables
+                        mergeWithLocalTableBookings().then(function() {
+                            renderAreaFilters();
+                            renderTablesGrid('all');
+                            $('#dine_in_table_modal').removeClass('display_none').addClass('active').css('display', 'flex');
+                            $(".pos__modal__overlay").fadeIn(200);
+                        });
+                    },
+                    error: function(xhr) {
+                        console.error("AJAX Error details: ", xhr);
+                        toastr['error']('Failed to load tables data', 'Error');
+                    }
+                });
+            }
+
+            // Render Area Filters
+            function renderAreaFilters() {
+                var filterContainer = $('#dine_in_area_filters');
+                filterContainer.find('button:not([data-area="all"])').remove();
+                
+                var uniqueAreas = {};
+                tablesData.forEach(function(t) {
+                    if (t.area && t.area_name) {
+                        uniqueAreas[t.area] = t.area_name;
+                    }
+                });
+
+                $.each(uniqueAreas, function(id, name) {
+                    filterContainer.append('<button class="area-filter-btn" data-area="' + id + '" style="padding: 8px 16px; border-radius: 20px; border: none; background: #2a2a40; color: #fff; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">' + name + '</button>');
+                });
+            }
+
+            // Filter on Area Click
+            $(document).on('click', '.area-filter-btn', function() {
+                $('.area-filter-btn').removeClass('active');
+                $(this).addClass('active');
+                var area = $(this).attr('data-area');
+                renderTablesGrid(area);
+            });
+
+            // Search Filter
+            $('#dine_in_table_search').on('keyup', function() {
+                var searchVal = $(this).val().toLowerCase();
+                var activeArea = $('.area-filter-btn.active').attr('data-area');
+                
+                $('#dine_in_tables_grid .table-card-premium').each(function() {
+                    var tableName = $(this).find('h3').text().toLowerCase();
+                    var matchesSearch = tableName.indexOf(searchVal) > -1;
+                    
+                    var tableArea = $(this).attr('data-area-id');
+                    var matchesArea = activeArea === 'all' || tableArea === activeArea;
+                    
+                    if (matchesSearch && matchesArea) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Render Grid
+            function renderTablesGrid(areaId) {
+                var grid = $('#dine_in_tables_grid');
+                grid.empty();
+
+                var filteredTables = tablesData;
+                if (areaId !== 'all') {
+                    filteredTables = tablesData.filter(function(t) {
+                        return String(t.area) === String(areaId);
+                    });
+                }
+
+                if (filteredTables.length === 0) {
+                    grid.html('<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 0;">No tables found in this area.</div>');
+                    return;
+                }
+
+                filteredTables.forEach(function(t) {
+                    var cardClass = t.has_active_order ? 'occupied' : 'free';
+                    var badgeClass = t.has_active_order ? 'occupied' : 'free';
+                    var badgeText = t.has_active_order ? 'Occupied' : 'Free';
+                    var btnText = t.has_active_order ? '<i class="fal fa-edit"></i> Modify Order' : '<i class="fal fa-plus"></i> New Order';
+                    var btnStyle = t.has_active_order ? 'background: #dc3545; color: #fff;' : 'background: #28a745; color: #fff;';
+                    
+                    var orderInfo = t.has_active_order ? '<p style="margin: 5px 0; font-size: 13px; color: #ffbcbc; font-weight: 500;">Order: ' + t.sale_no + '</p>' : '';
+                    var capacityInfo = '<p style="margin: 5px 0 10px 0; font-size: 13px; color: #aaa;">Capacity: ' + t.sit_capacity + ' Persons</p>';
+                    var areaInfo = t.area_name ? '<span style="font-size: 11px; color: #888; display: block; margin-bottom: 5px;">' + t.area_name + '</span>' : '';
+
+                    var cardHtml = `
+                        <div class="table-card-premium ${cardClass}" data-id="${t.id}" data-name="${t.name}" data-capacity="${t.sit_capacity}" data-area-id="${t.area}" data-has-order="${t.has_active_order}" data-sale-id="${t.sale_id}" data-sale-no="${t.sale_no}">
+                            <span class="status-badge ${badgeClass}">${badgeText}</span>
+                            ${areaInfo}
+                            <h3 style="margin: 0 0 5px 0; font-size: 18px; font-weight: 600;">${t.name}</h3>
+                            ${capacityInfo}
+                            ${orderInfo}
+                            <button type="button" style="width: 100%; border: none; padding: 8px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; ${btnStyle}">${btnText}</button>
+                        </div>
+                    `;
+                    grid.append(cardHtml);
+                });
+                
+                // Trigger search filter if search input is not empty
+                var searchVal = $('#dine_in_table_search').val().toLowerCase();
+                if (searchVal !== '') {
+                    $('#dine_in_table_search').keyup();
+                }
+            }
+
+            // Click Table Card
+            $(document).on('click', '.table-card-premium', function() {
+                var tableId = $(this).attr('data-id');
+                var tableName = $(this).attr('data-name');
+                var hasOrder = $(this).attr('data-has-order') === 'true';
+                var capacity = parseInt($(this).attr('data-capacity')) || 1;
+                var saleId = $(this).attr('data-sale-id');
+                var saleNo = $(this).attr('data-sale-no');
+
+                if (hasOrder) {
+                    // OCCUPIED -> MODIFY FLOW
+                    var total_items = $(".order_holder .single_order").length;
+                    
+                    var loadOrderFunc = function() {
+                        var applyDineInSelection = function() {
+                            // Set Dine In selected programmatically to avoid triggering table removal click handler
+                            $(".main_top").find("button").attr("data-selected", "unselected").removeClass("selected__btn");
+                            $(".dine_in_button").attr("data-selected", "selected").addClass("selected__btn");
+                            $("#table_button").attr("disabled", false);
+                            
+                            $(".type_temp_div").removeClass("active_tmp_btn");
+                            $('.tablet_btn[data-id="1"]').addClass("active_tmp_btn");
+
+                            let service_amount = $("#service_amount").val();
+                            $("#delivery_charge").val(service_amount);
+                            $("#charge_type").val('service').change();
+
+                            if (typeof do_addition_of_item_and_modifiers_price === "function") {
+                                do_addition_of_item_and_modifiers_price();
+                            }
+                            
+                            $('#dine_in_table_modal').addClass('display_none').removeClass('active').css('display', 'none');
+                            $(".pos__modal__overlay").fadeOut(200);
+                        };
+
+                        var fallbackAjaxLoad = function() {
+                            console.log("Fallback loading order from server for tableId: " + tableId);
+                            $.ajax({
+                                url: base_url + "Sale/get_all_information_of_a_sale_by_table_id_ajax",
+                                method: "POST",
+                                data: {
+                                    table_id: tableId,
+                                    csrf_irestoraplus: csrf_value_
+                                },
+                                success: function(response) {
+                                    response = JSON.parse(response);
+                                    // Set Dine In selected programmatically
+                                    applyDineInSelection();
+                                    // Use standard arrange function if available, fallback otherwise
+                                    if (typeof arrange_info_on_the_cart_to_modify === "function") {
+                                        arrange_info_on_the_cart_to_modify(response);
+                                        $("#update_sale_id").val(response.id);
+                                    } else {
+                                        toastr['error']('Failed to resolve cart modification functions', 'Error');
+                                    }
+                                },
+                                error: function() {
+                                    toastr['error']('Failed to load order details from server', 'Error');
+                                }
+                            });
+                        };
+
+                        // Use DOM simulation if order element exists in the left running orders panel
+                        var orderElement = $("#order_" + saleId);
+                        if (orderElement.length > 0) {
+                            console.log("Selecting running order locally via DOM: #order_" + saleId);
+                            orderElement.click();
+                            
+                            // Trigger standard Modify Order button action
+                            $("#modify_order").click();
+                            
+                            // Set Dine In selected programmatically
+                            applyDineInSelection();
+                        } else {
+                            // Fallback to AJAX load
+                            fallbackAjaxLoad();
+                        }
+                    };
+
+                    if (total_items > 0) {
+                        swal({
+                            title: warning + "!",
+                            text: cart_not_empty,
+                            confirmButtonColor: "#3c8dbc",
+                            confirmButtonText: ok,
+                            showCancelButton: true
+                        }, function(isConfirm) {
+                            if (isConfirm) {
+                                $(".order_holder").empty();
+                                loadOrderFunc();
+                            }
+                        });
+                    } else {
+                        loadOrderFunc();
+                    }
+                } else {
+                    // FREE -> NEW ORDER FLOW (Direct booking without guest count popup)
+                    var guests = 1;
+
+                    // Set Dine In selected programmatically to avoid triggering table removal click handler
+                    $(".main_top").find("button").attr("data-selected", "unselected").removeClass("selected__btn");
+                    $(".dine_in_button").attr("data-selected", "selected").addClass("selected__btn");
+                    $("#table_button").attr("disabled", false);
+                    
+                    $(".type_temp_div").removeClass("active_tmp_btn");
+                    $('.tablet_btn[data-id="1"]').addClass("active_tmp_btn");
+
+                    let service_amount = $("#service_amount").val();
+                    $("#delivery_charge").val(service_amount);
+                    $("#charge_type").val('service').change();
+
+                    if (typeof do_addition_of_item_and_modifiers_price === "function") {
+                        do_addition_of_item_and_modifiers_price();
+                    }
+
+                    // Clean old bookings
+                    $(".new_book_to_table").remove();
+
+                    // Add new book element to single_table_order_details_top
+                    var table_book_row = `
+                        <div class="single_row new_book_to_table" data-name="${tableName}" id="new_order_table_${tableId}">
+                            <div class="floatleft fix column first_column">New</div>
+                            <div class="floatleft fix column second_column">-</div>
+                            <div class="floatleft fix column third_column person_tbl_${tableId}">${guests}</div>
+                            <div class="floatleft fix column forth_column"><i class="fas fa-trash-alt remove_new_order_row_icon" id="single_row_table_delete_${tableId}"></i></div>
+                        </div>
+                    `;
+                    $("#single_table_order_details_top_" + tableId).append($(table_book_row));
+
+                    // Close modal
+                    $('#dine_in_table_modal').addClass('display_none').removeClass('active').css('display', 'none');
+                    $(".pos__modal__overlay").fadeOut(200);
+                    toastr['success']("Table " + tableName + " selected successfully.", 'Success');
+                }
+            });
+        });
+    </script>
+
     <!-- Auto Open Customer Panel -->
     <script type="text/javascript">
         $(document).ready(function(){

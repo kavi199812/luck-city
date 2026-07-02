@@ -484,6 +484,73 @@ class Sale extends Cl_Controller {
         return $tables;
     }
      /**
+      * Get Tables With Active Orders (AJAX)
+      * Returns all tables for the current outlet with active order info.
+      * Used by the Dine In table selection modal.
+      * @access public
+      * @return JSON
+      */
+    public function getTablesWithActiveOrders() {
+        $outlet_id = $this->session->userdata('outlet_id');
+        $tables    = $this->Sale_model->getTablesByOutletId($outlet_id);
+        $result    = array();
+
+        foreach ($tables as $table) {
+            // Check running order tables for active orders
+            $running_order = $this->db->select('sale_no, table_content')
+                ->from('tbl_running_order_tables')
+                ->where('table_id', $table->id)
+                ->where('del_status', 'Live')
+                ->where('outlet_id', $outlet_id)
+                ->get()->row();
+
+            $has_active = false;
+            $sale_id    = '';
+            $sale_no    = '';
+
+            if ($running_order) {
+                // Verify if the sale has been finalized/closed (order_status = 3/4/5) in tbl_sales
+                $sale_row = $this->db->select('id, order_status')
+                    ->from('tbl_sales')
+                    ->where('sale_no', $running_order->sale_no)
+                    ->where('del_status', 'Live')
+                    ->get()->row();
+
+                if ($sale_row && in_array($sale_row->order_status, array('3', '4', '5'))) {
+                    // Sale is closed/paid/canceled, so table is actually free
+                    $has_active = false;
+                } else {
+                    $has_active = true;
+                    $sale_no    = $running_order->sale_no;
+
+                    // Extract IndexedDB sale_id from table_content JSON
+                    $content = json_decode($running_order->table_content);
+                    if ($content && isset($content->sale_id)) {
+                        $sale_id = $content->sale_id;
+                    } else {
+                        if ($sale_row) {
+                            $sale_id = $sale_row->id;
+                        }
+                    }
+                }
+            }
+
+            $result[] = array(
+                'id'              => $table->id,
+                'name'            => $table->name,
+                'area'            => isset($table->area) ? $table->area : '',
+                'area_name'       => isset($table->area) ? getAreaName($table->area) : '',
+                'sit_capacity'    => $table->sit_capacity,
+                'has_active_order'=> $has_active,
+                'sale_id'         => $sale_id,
+                'sale_no'         => $sale_no,
+            );
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($result);
+    }
+     /**
      * Save sales data
      * @access public
      * @return void

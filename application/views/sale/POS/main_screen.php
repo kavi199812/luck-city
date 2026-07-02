@@ -1631,6 +1631,15 @@ if ($wl) {
                     });
                     $('#pos_production_modal_iframe').on('load', function(){
                         injectIframeHideCSS(this);
+                        try {
+                            var iframeUrl = this.contentWindow.location.href;
+                            if (iframeUrl.indexOf('Production/productions') > -1) {
+                                console.log("Production submitted successfully. Reloading POS screen...");
+                                window.location.reload();
+                            }
+                        } catch(e) {
+                            console.error("Failed to check Production iframe submission url: ", e);
+                        }
                     });
                     $(document).on('click', '#pos_production_modal .pos_iframe_modal_close', function(){
                         $('#pos_production_modal').fadeOut(200);
@@ -1645,6 +1654,15 @@ if ($wl) {
                     });
                     $('#pos_purchase_modal_iframe').on('load', function(){
                         injectIframeHideCSS(this);
+                        try {
+                            var iframeUrl = this.contentWindow.location.href;
+                            if (iframeUrl.indexOf('Purchase/purchases') > -1) {
+                                console.log("Purchase submitted successfully. Reloading POS screen...");
+                                window.location.reload();
+                            }
+                        } catch(e) {
+                            console.error("Failed to check Purchase iframe submission url: ", e);
+                        }
                     });
                     $(document).on('click', '#pos_purchase_modal .pos_iframe_modal_close', function(){
                         $('#pos_purchase_modal').fadeOut(200);

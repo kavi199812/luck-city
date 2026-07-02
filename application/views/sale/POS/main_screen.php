@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //get company information
 $getCompanyInfo = getCompanyInfo();
 $data_c = getLanguageManifesto();
@@ -600,123 +600,7 @@ if ($wl) {
         #main_part .left_item .main_middle .button_holder button {
             flex: 1 !important;
         }
-        /* --- CUSTOM DARK THEME --- */
-        #category_product_modal .modal-content {
-            background: #000000 !important; /* Solid Black Background */
-            border: 1px solid #f09000 !important; /* Dark Orange Border */
-            border-radius: 12px !important;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 1) !important;
-            color: #fefefe !important;
-            animation: modalZoom 0.2s ease-out !important; /* Extra Fast 0.2s Zoom */
-        }
-
-        @keyframes modalZoom {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        #category_product_modal .modal-header {
-            border-bottom: 2px solid #f09000 !important;
-            padding: 20px 25px !important;
-            background: #111111 !important;
-            border-radius: 12px 12px 0 0 !important;
-        }
-
-        #category_product_modal .modal-header h2 {
-            color: #f09000 !important; /* Item Color for Title */
-            font-weight: 700 !important;
-            font-size: 22px !important;
-            text-transform: uppercase !important;
-        }
-
-        #category_product_modal .close {
-            color: #fefefe !important;
-            opacity: 0.8 !important;
-            font-size: 28px !important;
-        }
-
-        #modal_product_container {
-            display: grid !important;
-            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important;
-            gap: 20px !important;
-            padding: 30px !important;
-            max-height: 75vh !important;
-            overflow-y: auto !important;
-            background: #000000 !important;
-            justify-content: center !important;
-        }
-
-        /* --- Product Cards --- */
-        #modal_product_container .single_item {
-            background: #1a1a1a !important;
-            border: 1px solid #333 !important;
-            border-radius: 10px !important;
-            padding: 15px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            height: 100% !important;
-            text-align: center !important;
-            animation: itemZoom 0.2s ease-out !important; /* Extra Fast 0.2s Zoom */
-        }
-
-        @keyframes itemZoom {
-            0% { transform: scale(0.95); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        #modal_product_container .single_item:hover {
-            border-color: #f09000 !important;
-            background: #222222 !important;
-            transform: translateY(-2px) !important;
-            transition: transform 0.3s ease !important; /* Re-enabled for subtle hover */
-        }
-
-        #modal_product_container .single_item img {
-            width: 100% !important;
-            max-width: 120px !important;
-            height: auto !important;
-            border-radius: 6px !important;
-            margin-bottom: 12px !important;
-            border: 1px solid #444 !important;
-        }
-
-        #modal_product_container .single_item .item_name {
-            color: #f09000 !important; /* Requested Item Name Color */
-            font-size: 17px !important; /* Increased font size */
-            font-weight: 700 !important;
-            margin-bottom: 12px !important;
-            min-height: 44px !important;
-            display: -webkit-box !important;
-            -webkit-line-clamp: 2 !important;
-            -webkit-box-orient: vertical !important;
-            overflow: hidden !important;
-        }
-
-        #modal_product_container .single_item .item_price {
-            background: transparent !important;
-            color: #fefefe !important; /* Requested Price Text Color */
-            padding: 5px 10px !important;
-            font-weight: 800 !important;
-            font-size: 18px !important; /* Increased font size */
-            border-top: 1px solid #333 !important;
-            width: 100% !important;
-            display: block !important;
-            margin-top: 5px !important;
-        }
-
-        /* Custom Scrollbar */
-        #modal_product_container::-webkit-scrollbar {
-            width: 10px;
-        }
-        #modal_product_container::-webkit-scrollbar-track {
-            background: #000;
-        }
-        #modal_product_container::-webkit-scrollbar-thumb {
-            background: #f09000;
-            border-radius: 5px;
-        }
+        /* Category modal styles removed — now using inline tab+grid layout */
     </style>
 </head>
 
@@ -1508,17 +1392,24 @@ if ($wl) {
                 </form>
 
                 <div id="main_item_holder">
-                    <!-- Category Grid (New View) -->
-                    <div id="category_grid_holder">
-                        <?php foreach ($menu_categories as $single_category): ?>
-                            <div class="category_grid_item" data-category_id="<?php echo $single_category->id; ?>"
-                                data-category_name="<?php echo getPlanText($single_category->category_name); ?>">
-                                <h3><?php echo getPlanText($single_category->category_name); ?></h3>
+
+                    <!-- Category Tabs Bar (no All Products tab) -->
+                    <div id="category_tabs_bar">
+                        <?php $first_cat = true; foreach ($menu_categories as $single_category): ?>
+                            <div class="cat-tab <?php echo $first_cat ? 'active' : ''; ?>"
+                                 data-category_id="<?php echo $single_category->id; ?>"
+                                 data-category_name="<?php echo getPlanText($single_category->category_name); ?>">
+                                <?php echo getPlanText($single_category->category_name); ?>
                             </div>
-                        <?php endforeach; ?>
+                        <?php $first_cat = false; endforeach; ?>
                     </div>
 
-                    <!-- Hidden areas used for logic/data, kept but hidden by CSS/JS -->
+                    <!-- Inline Product Grid (directly below tabs) -->
+                    <div id="inline_product_grid">
+                        <!-- Products rendered here by JS -->
+                    </div>
+
+                    <!-- Hidden areas kept for legacy JS compatibility -->
                     <div class="category-list scrollbar-macosx" style="display:none;">
                         <ul class="list-of-item">
                             <li>
@@ -1533,20 +1424,6 @@ if ($wl) {
                         <div class="category_items">
                             <!--This variable could not be escaped because this is html content-->
                             <?php echo ($menu_to_show); ?>
-
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product Popup Modal -->
-                <div id="category_product_modal">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 id="modal_category_title">Category Name</h2>
-                            <span class="close">&times;</span>
-                        </div>
-                        <div class="modal-body" id="modal_product_container">
-                            <!-- Products will be injected here -->
                         </div>
                     </div>
                 </div>
@@ -1566,132 +1443,147 @@ if ($wl) {
                         });
                         toggleTakeAwayMode();
 
-                        // Category Click Handler
-                        $('.category_grid_item').on('click', function () {
-                            var categoryId = $(this).data('category_id');
-                            var categoryName = $(this).data('category_name');
-                            console.log('Category Clicked:', categoryName, 'ID:', categoryId);
-
-                            $('#modal_category_title').text(categoryName);
-                            var modalContainer = $('#modal_product_container');
-                            modalContainer.empty();
-
-                            // Filter items by category name on the fly
-                            var filteredItems = window.items.filter(function(item) {
-                                return item.category_name === categoryName && item.parent_id == '0';
+                        // ── Inline product grid render ──────────────────────────────
+                        function buildProductCard(item) {
+                            // Use DOM methods (not string concat) so that
+                            // getPlanText()/htmlentities() encoded values like &amp; &#039;
+                            // are treated as plain text, not raw HTML.
+                            var $card = $('<div class="single_item"></div>');
+                            $card.attr({
+                                'data-price':             item.price,
+                                'data-price_take':        item.price_take,
+                                'data-price_delivery':    item.price_delivery,
+                                'data-is_variation':      item.is_variation,
+                                'data-product_type':      item.product_type,
+                                'data-is_promo':          item.is_promo,
+                                'data-veg_status':        item.veg_item_status,
+                                'data-beverage_status':   item.beverage_item_status,
+                                'data-parent_id':         item.parent_id,
+                                'id':                     'item_' + item.item_id
                             });
 
-                            if (filteredItems.length > 0) {
-                                 filteredItems.forEach(function(item) {
-                                    var itemHtml = `
-                                        <div class="single_item" 
-                                             data-price="${item.price}"  
-                                             data-price_take="${item.price_take}"  
-                                             data-price_delivery="${item.price_delivery}" 
-                                             data-is_variation="${item.is_variation}" 
-                                             data-product_type="${item.product_type}" 
-                                             data-is_promo="${item.is_promo}" 
-                                             id="item_${item.item_id}">
-                                            <img src="${item.image}" alt="" width="142">
-                                            <p class="item_name" data-tippy-content="${item.item_name}">${item.item_name}</p>
-                                            <p class="item_price"><?php echo lang('price') ?>: <span id="price_${item.item_id}">${item.price}</span></p>
-                                        </div>`;
-                                    modalContainer.append(itemHtml);
-                                });
+                            // Image (hidden by CSS)
+                            $('<img alt="" width="142">').attr('src', item.image).appendTo($card);
 
-                                // Re-initialize tooltips for new items
-                                if (typeof tippy !== 'undefined') {
-                                    tippy('#modal_product_container .item_name', {
-                                        placement: 'bottom-start'
-                                    });
+                            // Item name — decode HTML entities from getPlanText then set as plain text
+                            var $name = $('<p class="item_name"></p>');
+                            var decodedName = $('<textarea/>').html(item.item_name).val();
+                            $name.text(decodedName).attr('data-tippy-content', decodedName);
+                            $name.appendTo($card);
+
+                            // Price
+                            var $price = $('<p class="item_price"></p>');
+                            $price.html('<?php echo lang('price') ?>: <span id="price_' + item.item_id + '">' + item.price + '</span>');
+                            $price.appendTo($card);
+
+                            return $card;
+                        }
+
+                        function renderProductsToGrid(filteredItems) {
+                            var grid = $('#inline_product_grid');
+                            grid.empty();
+                            if (!filteredItems || filteredItems.length === 0) {
+                                grid.html('<div class="no_products_msg">No products found.</div>');
+                                return;
+                            }
+                            filteredItems.forEach(function(item) {
+                                grid.append(buildProductCard(item));
+                            });
+                            // Re-init tooltips
+                            if (typeof tippy !== 'undefined') {
+                                tippy('#inline_product_grid .item_name', { placement: 'bottom-start' });
+                            }
+                        }
+
+                        // Auto-load: trigger the first category tab once window.items is ready
+                        window._triggerAllProductsTab = function() {
+                            setTimeout(function() {
+                                if (!window.items) return;
+                                // Click the first (already-active) category tab to load its products
+                                var $firstTab = $('.cat-tab.active').first();
+                                if ($firstTab.length) {
+                                    $firstTab.trigger('click');
                                 }
+                            }, 500);
+                        };
+                        // Called from bottom of page once window.items is set
 
-                                $('#category_product_modal').show();
+                        // ── Tab click handler ───────────────────────────────────────
+                        $(document).on('click', '.cat-tab', function() {
+                            // Update active tab highlight
+                            $('.cat-tab').removeClass('active');
+                            $(this).addClass('active');
+
+                            var categoryId   = $(this).data('category_id');
+                            var categoryName = $(this).data('category_name');
+
+                            if (!window.items) return;
+
+                            var filtered;
+                            if (categoryId === 'all') {
+                                filtered = window.items.filter(function(item) {
+                                    return item.parent_id == '0';
+                                });
                             } else {
-                                console.warn('No products found for category ' + categoryId);
-                                Swal.fire({
-                                    title: '<?php echo lang('alert'); ?>',
-                                    text: 'No products found in this category.',
-                                    confirmButtonColor: '#b6bece'
+                                filtered = window.items.filter(function(item) {
+                                    return item.category_name === categoryName && item.parent_id == '0';
                                 });
                             }
+                            renderProductsToGrid(filtered);
                         });
 
-                        // Close Modal Handler
-                        $('#category_product_modal .close').on('click', function () {
-                            $('#category_product_modal').hide();
-                        });
-
-                        // Close modal on outside click
-                        $(window).on('click', function (event) {
-                            if (event.target.id == 'category_product_modal') {
-                                $('#category_product_modal').hide();
-                            }
-                        });
-
-                        // Auto-close modal when a product is clicked
-                        $(document).on('click', '#category_product_modal .single_item', function () {
-                            $('#category_product_modal').hide();
-                        });
-
-                        // Search Functionality for Categories
+                        // ── Search: filter tabs + products ──────────────────────────
                         $('#search').on('keyup', function () {
-                            var value = $(this).val().toLowerCase();
-                            $('.category_grid_item').filter(function () {
-                                $(this).toggle($(this).data('category_name').toLowerCase().indexOf(value) > -1)
+                            var value = $(this).val().toLowerCase().trim();
+                            if (value === '') {
+                                // Restore active tab's products
+                                var $active = $('.cat-tab.active');
+                                var catId   = $active.data('category_id');
+                                var catName = $active.data('category_name');
+                                var filtered;
+                                if (catId === 'all') {
+                                    filtered = window.items.filter(function(i){ return i.parent_id == '0'; });
+                                } else {
+                                    filtered = window.items.filter(function(i){ return i.category_name === catName && i.parent_id == '0'; });
+                                }
+                                renderProductsToGrid(filtered);
+                                return;
+                            }
+                            // Search across all items
+                            var searched = window.items.filter(function(item) {
+                                return item.parent_id == '0' && (
+                                    item.item_name.toLowerCase().indexOf(value) > -1 ||
+                                    item.item_code.toLowerCase().indexOf(value) > -1 ||
+                                    item.category_name.toLowerCase().indexOf(value) > -1 ||
+                                    item.veg_item.toLowerCase().indexOf(value) > -1 ||
+                                    item.beverage_item.toLowerCase().indexOf(value) > -1
+                                );
                             });
+                            renderProductsToGrid(searched);
                         });
 
-                        // Filter Buttons: Vegetarian, Beverage, Combo, Promo
+                        // ── Filter Buttons: Vegetarian, Beverage, Combo, Promo ──────
                         $('.veg_bev_item, #combo_item, .get_prom_details').on('click', function (e) {
                             e.preventDefault();
-                            var filterType = $(this).data('status');
+                            var filterType  = $(this).data('status');
                             var filterTitle = $(this).text().trim();
 
-                            console.log('Filter button clicked:', filterType, filterTitle);
+                            // Clear tab active state (showing filtered view)
+                            $('.cat-tab').removeClass('active');
 
-                            // Clear modal container
-                            var modalContainer = $('#modal_product_container');
-                            modalContainer.empty();
+                            if (!window.items) return;
 
-                            // Update modal title
-                            $('#modal_category_title').text(filterTitle);
-
-                            // Find all products across all categories
-                            var matchedProducts = [];
-
-                            $('.specific_category_items_holder').each(function () {
-                                $(this).find('.single_item').each(function () {
-                                    var $product = $(this);
-                                    var shouldInclude = false;
-
-                                    if (filterType === 'veg') {
-                                        shouldInclude = $product.data('veg_status') === 'yes';
-                                    } else if (filterType === 'bev') {
-                                        shouldInclude = $product.data('beverage_status') === 'yes';
-                                    } else if (filterType === 'combo') {
-                                        shouldInclude = $product.data('product_type') == 2;
-                                    } else if (filterType === '') {
-                                        // Promo button
-                                        shouldInclude = $product.data('is_promo') === 'Yes';
-                                    }
-
-                                    if (shouldInclude) {
-                                        matchedProducts.push($product.clone(true, true));
-                                    }
-                                });
+                            var matched = window.items.filter(function(item) {
+                                if (item.parent_id != '0') return false;
+                                if (filterType === 'veg')   return item.veg_item_status === 'yes';
+                                if (filterType === 'bev')   return item.beverage_item_status === 'yes';
+                                if (filterType === 'combo') return item.product_type == 2;
+                                if (filterType === '')      return item.is_promo === 'Yes';
+                                return false;
                             });
 
-                            console.log('Matched products:', matchedProducts.length);
-
-                            if (matchedProducts.length > 0) {
-                                // Append matched products to modal
-                                matchedProducts.forEach(function (product) {
-                                    modalContainer.append(product);
-                                });
-
-                                // Show modal
-                                $('#category_product_modal').show();
+                            if (matched.length > 0) {
+                                renderProductsToGrid(matched);
                             } else {
                                 Swal.fire({
                                     title: '<?php echo lang('alert'); ?>',
@@ -5245,6 +5137,9 @@ if ($wl) {
         if (window.items) window.items.forEach(function(i) { window.itemMap[i.item_id] = i; });
         window.customerMap = {};
         if (window.customers) window.customers.forEach(function(c) { window.customerMap[c.customer_id] = c; });
+
+        // Trigger "All Products" tab after all scripts are ready
+        if (typeof window._triggerAllProductsTab === 'function') window._triggerAllProductsTab();
 
         $('.widthAndHeight').text($(window).width() + 'x' + $(window).height())
 

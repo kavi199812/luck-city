@@ -1,155 +1,8 @@
-#category_grid_holder {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    align-content: start;
-    gap: 15px;
-    padding: 15px;
-    width: 100%;
-    height: calc(100vh - 150px);
-    /* Adjust based on header/search bar height */
-    overflow-y: auto;
-}
+/* ====================================================
+   POS Category Tabs + Inline Product Grid
+   ==================================================== */
 
-.category_grid_item {
-    background-color: #8de0ba;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 120px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-}
-
-.category_grid_item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-    background-color: #7dd4ab;
-}
-
-.category_grid_item h3 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 800;
-    color: #333;
-}
-
-/* Modal Styles for Product Grid */
-#category_product_modal {
-    display: none;
-    position: fixed;
-    z-index: 1050;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0, 0, 0);
-    background-color: rgba(0, 0, 0, 0.4);
-}
-
-#category_product_modal .modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 95%;
-    max-width: 90%;
-    border-radius: 8px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-#category_product_modal .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-}
-
-#category_product_modal .modal-header h2 {
-    margin: 0;
-    font-size: 24px;
-}
-
-#category_product_modal .close {
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#category_product_modal .close:hover,
-#category_product_modal .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-#category_product_modal .modal-body {
-    /* Uses existing styles for products, but ensures grid layout */
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-/* Hide original elements */
-/* .category-list, Use !important if needed or specific selector in JS */
-#secondary_item_holder {
-    display: none;
-}
-
-#category_product_modal .single_item img {
-    display: none !important;
-}
-
-#category_product_modal .single_item {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-    background-color: #8de0ba !important;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15) !important;
-    border-radius: 8px !important;
-    transition: transform 0.2s, box-shadow 0.2s !important;
-    width: 200px !important;
-    min-height: 120px !important;
-    justify-content: center !important;
-    display: flex !important;
-    flex-direction: column !important;
-    text-align: center !important;
-
-}
-
-#category_product_modal .single_item:hover {
-    background-color: #7dd4ab !important;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
-    transform: translateY(-3px) !important;
-}
-
-/* Edit products text size and bold it Kavi */
-
-#category_product_modal .single_item .item_name {
-    font-size: 20px !important;
-    font-weight: 800 !important;
-    color: #333 !important;
-    white-space: normal !important;
-    /* Allow wrapping for long names if needed */
-}
-
-#category_product_modal .single_item .item_price {
-    font-size: 18px !important;
-    font-weight: 700 !important;
-    color: #444 !important;
-}
-
-
-/* Adjust layout widths - narrow cart (left), widen categories (right) */
+/* ── Layout widths ── */
 #main_part .left_item {
     width: 45% !important;
 }
@@ -158,12 +11,158 @@
     width: 55% !important;
 }
 
-/* Ensure category grid uses full available width */
-#category_grid_holder {
-    width: 100% !important;
+/* ── Critical fix: main_item_holder must stack vertically (tabs on top, grid below) ── */
+#main_part .main_right #main_item_holder {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    overflow: hidden !important;
 }
 
-/* Increase variation button size - comprehensive targeting */
+/* ── Category Tab Bar ── */
+#category_tabs_bar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 8px 10px;
+    background: #f5f5f5;
+    border-bottom: 3px solid #8de0ba;
+    flex-shrink: 0;
+}
+
+/* ── Individual Tab ── */
+.cat-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 8px 8px 0 0;
+    background: #d4f5e9;
+    color: #2a5c45;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-bottom: none;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 80px;
+    line-height: 1.3;
+    user-select: none;
+}
+
+.cat-tab:hover {
+    background: #a8ecd0;
+    color: #1a3d2d;
+}
+
+.cat-tab.active {
+    background: #8de0ba;
+    color: #fff;
+    border-color: #8de0ba;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.10);
+}
+
+/* ── Inline Product Grid ── */
+#inline_product_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    align-content: start;
+    gap: 8px;
+    padding: 8px;
+    width: 100%;
+    height: calc(100vh - 190px);
+    overflow-y: auto;
+    background: #f9f9f9;
+    box-sizing: border-box;
+}
+
+/* Custom scrollbar for product grid */
+#inline_product_grid::-webkit-scrollbar {
+    width: 6px;
+}
+#inline_product_grid::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+#inline_product_grid::-webkit-scrollbar-thumb {
+    background: #8de0ba;
+    border-radius: 4px;
+}
+
+/* ── Product Cards (inline) ── */
+#inline_product_grid .single_item {
+    background: #8de0ba !important;
+    border: 2px solid transparent !important;
+    border-radius: 8px !important;
+    padding: 8px 6px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-height: 80px !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.18s, box-shadow 0.18s, background 0.18s, border-color 0.18s !important;
+}
+
+#inline_product_grid .single_item:hover {
+    background: #7dd4ab !important;
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2) !important;
+    transform: translateY(-2px) !important;
+    border-color: #3fad80 !important;
+}
+
+/* Hide product images inside inline grid */
+#inline_product_grid .single_item img {
+    display: none !important;
+}
+
+#inline_product_grid .single_item .item_name {
+    display: block !important;
+    width: 100% !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #1a3d2d !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.3 !important;
+    margin: 0 0 4px 0 !important;
+    padding: 0 !important;
+    max-height: 3.9em !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+}
+
+#inline_product_grid .single_item .item_price {
+    display: block !important;
+    width: 100% !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #2a5c45 !important;
+    border-top: 1px solid rgba(0,0,0,0.15) !important;
+    padding-top: 4px !important;
+    margin-top: auto !important;
+}
+
+/* ── Empty state ── */
+#inline_product_grid .no_products_msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #888;
+    font-size: 15px;
+    padding: 40px 20px;
+    font-style: italic;
+}
+
+/* ── Legacy hidden elements (kept for JS compat) ── */
+#secondary_item_holder {
+    display: none !important;
+}
+
+/* ── Variation / Modifier button sizes ── */
 .cus_pos_modal .pos__modal__body .separate__radio_field .form__field label,
 .cus_pos_modal .pos__modal__body .separate__radio_field button,
 .cus_pos_modal .pos__modal__body .separate__radio_field .btn,

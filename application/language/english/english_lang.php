@@ -1526,4 +1526,8 @@ $lang['no_data_found'] = 'No data found.';
 $lang['daily_purchase_report'] = 'Daily Purchase Report';
 $lang['unit_qty'] = 'Unit (Qty)';
 $lang['daily_production_report'] = 'Daily Production Report';
+$lang['production_vs_waste_report'] = 'Daily Production vs Waste';
+$lang['production_qty'] = 'Production Qty';
+$lang['product_name'] = 'Product Name';
+$lang['waste_qty'] = 'Waste Qty';
 

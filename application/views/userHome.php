@@ -484,6 +484,12 @@ $outlet_id = $this->session->userdata('outlet_id');
                                 <span> Daily Waste</span>
                             </a>
                         </li>
+                        <li data-access="view-193" class="menu_assign_class menu__cidirp_pvw" data-menu__cid="irp_pvw">
+                            <a style="display: ;" href="<?php echo base_url()?>Report/productionVsWasteReport">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                                <span> Daily Production vs Waste</span>
+                            </a>
+                        </li>
 
 
                         <li class="treeview menu__cidirp_4">
@@ -975,6 +981,12 @@ $outlet_id = $this->session->userdata('outlet_id');
                             <a style="display: ;" href="<?php echo base_url()?>Report/foodWasteReport">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                                 <span> Daily Waste</span>
+                            </a>
+                        </li>
+                        <li data-access="view-193" class="menu_assign_class menu__cidirp_pvw" data-menu__cid="irp_pvw">
+                            <a style="display: ;" href="<?php echo base_url()?>Report/productionVsWasteReport">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                                <span> Daily Production vs Waste</span>
                             </a>
                         </li>
 

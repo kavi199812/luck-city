@@ -909,5 +909,9 @@ $lang['no_data_found'] = 'No se encontraron datos.';
 $lang['daily_purchase_report'] = 'Informe de compras diarias';
 $lang['unit_qty'] = 'Unidad (Cant)';
 $lang['daily_production_report'] = 'Informe de producción diaria';
+$lang['production_vs_waste_report'] = 'Producción diaria vs Desperdicio';
+$lang['production_qty'] = 'Cant. de producción';
+$lang['product_name'] = 'Nombre del producto';
+$lang['waste_qty'] = 'Cant. de desperdicio';
 
 

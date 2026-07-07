@@ -1463,5 +1463,9 @@ $lang['no_data_found'] = 'لا توجد بيانات.';
 $lang['daily_purchase_report'] = 'تقرير المشتريات اليومية';
 $lang['unit_qty'] = 'الوحدة (كمية)';
 $lang['daily_production_report'] = 'تقرير الإنتاج اليومي';
+$lang['production_vs_waste_report'] = 'الإنتاج اليومي مقابل النفايات';
+$lang['production_qty'] = 'كمية الإنتاج';
+$lang['product_name'] = 'اسم المنتج';
+$lang['waste_qty'] = 'كمية النفايات';
 
 

@@ -2415,6 +2415,40 @@ FROM tbl_food_menus_ingredients i  LEFT JOIN (select * from tbl_ingredients wher
         return $query->result();
     }
 
-
+    /**
+     * Production vs Waste Report  – compares production qty vs waste qty for pre-made items
+     * @access public
+     * @return array
+     * @param string  $date       YYYY-MM-DD date to filter
+     * @param int     $outlet_id
+     */
+    public function productionVsWasteReport($date = '', $outlet_id = '') {
+        $sql = "SELECT 
+                    i.name as product_name,
+                    COALESCE(prod.total_production, 0) as production_qty,
+                    COALESCE(waste.total_waste, 0) as waste_qty,
+                    u.unit_name
+                FROM tbl_ingredients i
+                LEFT JOIN (
+                    SELECT pi.ingredient_id, SUM(pi.quantity_amount) as total_production 
+                    FROM tbl_production_ingredients pi 
+                    JOIN tbl_production p ON p.id = pi.production_id 
+                    WHERE p.date = ? AND p.outlet_id = ? AND p.del_status = 'Live' AND pi.del_status = 'Live' 
+                    GROUP BY pi.ingredient_id
+                ) prod ON prod.ingredient_id = i.id
+                LEFT JOIN (
+                    SELECT wi.ingredient_id, SUM(wi.waste_amount) as total_waste 
+                    FROM tbl_waste_ingredients wi 
+                    JOIN tbl_wastes w ON w.id = wi.waste_id 
+                    WHERE w.date = ? AND w.outlet_id = ? AND w.note = 'Auto-wasted all Pre-Made Food' AND w.del_status = 'Live' AND wi.del_status = 'Live' 
+                    GROUP BY wi.ingredient_id
+                ) waste ON waste.ingredient_id = i.id
+                LEFT JOIN tbl_units u ON u.id = i.unit_id
+                WHERE i.ing_type = 'Pre-made Item' 
+                  AND i.del_status = 'Live'
+                  AND (prod.total_production IS NOT NULL OR waste.total_waste IS NOT NULL)
+                ORDER BY waste_qty DESC";
+        $query = $this->db->query($sql, array($date, $outlet_id, $date, $outlet_id));
+        return $query->result();
+    }
 }
-

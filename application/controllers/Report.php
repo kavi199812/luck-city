@@ -119,7 +119,7 @@ class Report extends Cl_Controller {
             }elseif($segment_2=="productAnalysisReport"){
                 $controller = "332";
                 $function = "view";
-            }elseif($segment_2=="productionReport"){
+            }elseif($segment_2=="productionReport" || $segment_2=="dailyProductionReport"){
                 $controller = "337";
                 $function = "view";
             }else{
@@ -1169,6 +1169,35 @@ class Report extends Cl_Controller {
         $data['main_content'] = $this->load->view('report/dailyPurchaseReport', $data, TRUE);
         $this->load->view('userHome', $data);
     }
+
+    /**
+     * Daily Production Report  – shows pre-made food items produced on a given date
+     * @access public
+     * @return void
+     * @param no
+     */
+    public function dailyProductionReport() {
+        $data = array();
+        $outlet_id = $this->session->userdata('outlet_id');
+        $selected_date = date('Y-m-d');
+        if (htmlspecialcharscustom($this->input->post('submit'))) {
+            $posted_outlet = isset($_POST['outlet_id']) && $_POST['outlet_id'] ? $_POST['outlet_id'] : '';
+            if ($posted_outlet) {
+                $outlet_id = $posted_outlet;
+            }
+            $raw_date = htmlspecialcharscustom($this->input->post($this->security->xss_clean('date')));
+            if ($raw_date) {
+                $selected_date = date('Y-m-d', strtotime($raw_date));
+            }
+        }
+        $data['outlet_id']           = $outlet_id;
+        $data['selected_date']       = $selected_date;
+        $data['dailyProductionReport'] = $this->Report_model->dailyProductionReport($selected_date, $outlet_id);
+        $data['main_content'] = $this->load->view('report/dailyProductionReport', $data, TRUE);
+        $this->load->view('userHome', $data);
+    }
+
+
 
       /**
      * expense Report

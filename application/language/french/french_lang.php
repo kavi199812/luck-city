@@ -1463,6 +1463,7 @@ $lang['waste_unit'] = 'Unité de gaspillage';
 $lang['no_data_found'] = 'Aucune donnée trouvée.';
 $lang['daily_purchase_report'] = "Rapport d'achats journaliers";
 $lang['unit_qty'] = 'Unité (Qte)';
+$lang['daily_production_report'] = 'Rapport de production quotidienne';
 
 
 

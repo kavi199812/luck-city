@@ -2390,5 +2390,31 @@ FROM tbl_food_menus_ingredients i  LEFT JOIN (select * from tbl_ingredients wher
         return $result;
     }
 
+    /**
+     * Daily Production Report  – shows pre-made food items produced on a given date
+     * @access public
+     * @return object
+     * @param string  $date       YYYY-MM-DD date to filter
+     * @param int     $outlet_id
+     */
+    public function dailyProductionReport($date = '', $outlet_id = '') {
+        $this->db->select('tbl_ingredients.name as food_name, SUM(tbl_production_ingredients.quantity_amount) as total_qty, tbl_units.unit_name');
+        $this->db->from('tbl_production_ingredients');
+        $this->db->join('tbl_production', 'tbl_production.id = tbl_production_ingredients.production_id', 'left');
+        $this->db->join('tbl_ingredients', 'tbl_ingredients.id = tbl_production_ingredients.ingredient_id', 'left');
+        $this->db->join('tbl_units', 'tbl_units.id = tbl_ingredients.unit_id', 'left');
+        if ($date != '') {
+            $this->db->where('tbl_production.date', $date);
+        }
+        $this->db->where('tbl_production.outlet_id', $outlet_id);
+        $this->db->where('tbl_production.del_status', 'Live');
+        $this->db->where('tbl_production_ingredients.del_status', 'Live');
+        $this->db->group_by('tbl_production_ingredients.ingredient_id');
+        $this->db->order_by('tbl_ingredients.name', 'ASC');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
 }
 

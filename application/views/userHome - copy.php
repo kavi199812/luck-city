@@ -517,8 +517,10 @@ $outlet_id = $this->session->userdata('outlet_id');
                                         <?php echo lang('Add'); ?> <?php echo lang('production'); ?></a></li>
                                 <li data-access="view-340" class="menu_assign_class" data-menu__cid="irp_6_1"><a href="<?php echo base_url()?>Production/productions">
                                         <?php echo lang('List'); ?> <?php echo lang('production'); ?></a></li>
+                                <li data-access="view-340" class="menu_assign_class" data-menu__cid="irp_6_1"><a href="<?php echo base_url()?>Report/dailyProductionReport"><?php echo lang('daily_production_report'); ?></a></li>
                             </ul>
                         </li>
+
                         <?php if(str_rot13($data_c[0]) == "eriutoeri"):?>
                         <li class="treeview menu__cidirp_7">
                             <a href="#">
@@ -1157,6 +1159,7 @@ $outlet_id = $this->session->userdata('outlet_id');
                                 <li data-access="view-307" class="menu_assign_class" data-menu__cid="irp_15"><a href="<?php echo base_url()?>Report/transferReport"><?php echo lang('transferReport'); ?></a></li>
                                 <?php endif;?>
                                 <li data-access="view-337" class="menu_assign_class" data-menu__cid="irp_15"><a href="<?php echo base_url()?>Report/productionReport"><?php echo lang('productionReport'); ?></a></li>
+                                <li data-access="view-337" class="menu_assign_class" data-menu__cid="irp_15"><a href="<?php echo base_url()?>Report/dailyProductionReport"><?php echo lang('daily_production_report'); ?></a></li>
                             </ul>
                         </li>
 

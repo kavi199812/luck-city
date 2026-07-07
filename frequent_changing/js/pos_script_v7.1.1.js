@@ -15837,39 +15837,60 @@
             let pos_7 = Number($("#pos_7").val());
             let is_self_order = $("#is_self_order").val();
             if (pos_7 || is_self_order == "Yes") {
+                let this_action = $(this);
+                let remove_item_action = function() {
+                    if (sale_no && sale_no != undefined) {
+                        let food_menu_id = this_action.attr('data-id');;
+                        let qty = this_action.parent().parent().find('.qty_item_custom').text();
+                        $.ajax({
+                            url: base_url + "authentication/remove_item_checking",
+                            method: "POST",
+                            dataType: 'json',
+                            data: { food_menu_id: food_menu_id, qty: qty, sale_no: sale_no },
+                            success: function (response) {
+
+                            },
+                            error: function () {
+
+                            },
+                        });
+                    }
+                    this_action
+                        .parent()
+                        .parent()
+                        .parent()
+                        .slideUp(333, function () {
+                            $(this).remove();
+                            setTimeout(function () {
+                                do_addition_of_item_and_modifiers_price();
+                            }, 100);
+                        });
+                };
+
                 if (sale_no && sale_no != undefined) {
-                    let this_action = $(this);
-                    let food_menu_id = $(this).attr('data-id');;
-                    let qty = $(this).parent().parent().find('.qty_item_custom').text();
-                    $.ajax({
-                        url: base_url + "authentication/remove_item_checking",
-                        method: "POST",
-                        dataType: 'json',
-                        data: { food_menu_id: food_menu_id, qty: qty, sale_no: sale_no },
-                        success: function (response) {
-
-                        },
-                        error: function () {
-
-                        },
+                    // Show confirmation popup when modifying an existing order
+                    swal({
+                        title: warning + "!",
+                        text: "Are you sure you want to remove this item from the order?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes, remove it!",
+                        cancelButtonText: "No, cancel!",
+                        closeOnConfirm: true
+                    }, function(isConfirm) {
+                        if (isConfirm) {
+                            remove_item_action();
+                        }
                     });
+                } else {
+                    // Direct removal for new orders
+                    remove_item_action();
                 }
-                $(this)
-                    .parent()
-                    .parent()
-                    .parent()
-                    .slideUp(333, function () {
-                        $(this).remove();
-                    });
             } else {
                 toastr['error']((menu_not_permit_access + "!"), '');
             }
-
-
         }
-        setTimeout(function () {
-            do_addition_of_item_and_modifiers_price();
-        }, 500);
     });
     $("body").on("click", ".cart__single__item", function () {
         $(this).hide();

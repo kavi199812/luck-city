@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
  * Daily Production Report View
  * Displays pre-made food items produced on a given date (single date filter).
@@ -130,8 +130,8 @@
 <script src="<?php echo base_url(); ?>frequent_changing/newDesign/js/forTable.js"></script>
 <script src="<?php echo base_url(); ?>frequent_changing/js/custom_report.js"></script>
 <script>
-$(document).ready(function() {
-    var table = $('#datatable').DataTable();
+jqry(document).ready(function() {
+    var table = jqry('#datatable').DataTable();
     
     // Sort by column 1 (Food Name) ascending by default
     table.order([[1, 'asc']]);

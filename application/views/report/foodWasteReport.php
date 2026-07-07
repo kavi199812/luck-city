@@ -132,8 +132,8 @@
 <script src="<?php echo base_url(); ?>frequent_changing/newDesign/js/forTable.js"></script>
 <script src="<?php echo base_url(); ?>frequent_changing/js/custom_report.js"></script>
 <script>
-$(document).ready(function() {
-    var table = $('#datatable').DataTable();
+jqry(document).ready(function() {
+    var table = jqry('#datatable').DataTable();
     
     // Sort by column 1 (Product List) ascending by default
     table.order([[1, 'asc']]);

@@ -1,8 +1,8 @@
 <?php
 /*
- * Food Waste Report View
- * Displays pre-made food items wasted via the POS "Add Waste" button.
- * Filtered by a single date. Shows product list and waste units in two main columns.
+ * Daily Purchase Report View
+ * Displays ingredients purchased on a given date (single date filter).
+ * Two columns: Ingredient Name | Quantity (with unit, e.g. "5.00 kg")
  */
 ?>
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/dist/css/custom/report.css">
@@ -10,8 +10,8 @@
 <section class="main-content-wrapper">
 
     <section class="content-header">
-        <h3 class="top-left-header text-left"><?php echo lang('food_waste_report'); ?></h3>
-        <input type="hidden" class="datatable_name" data-title="<?php echo lang('food_waste_report'); ?>" data-id_name="datatable">
+        <h3 class="top-left-header text-left"><?php echo lang('daily_purchase_report'); ?></h3>
+        <input type="hidden" class="datatable_name" data-title="<?php echo lang('daily_purchase_report'); ?>" data-id_name="datatable">
     </section>
 
     <div class="my-2">
@@ -26,12 +26,12 @@
     <div class="box-wrapper">
         <!-- Filter Form -->
         <div class="row mb-3">
-            <?php echo form_open(base_url() . 'Report/foodWasteReport'); ?>
+            <?php echo form_open(base_url() . 'Report/dailyPurchaseReport'); ?>
 
             <!-- Single Date Filter -->
             <div class="col-sm-12 col-md-4 col-lg-2 mb-3">
                 <div class="form-group">
-                    <input tabindex="1" type="text" id="food_waste_date" name="date" readonly
+                    <input tabindex="1" type="text" id="daily_purchase_date" name="date" readonly
                         class="form-control customDatepicker"
                         placeholder="<?php echo lang('date'); ?>"
                         value="<?php echo isset($selected_date) ? escape_output(date($this->session->userdata('date_format'), strtotime($selected_date))) : ''; ?>">
@@ -73,24 +73,22 @@
                     <thead>
                         <tr>
                             <th class="ir_w_1"><?php echo lang('sn'); ?></th>
-                            <th><?php echo lang('product_list'); ?></th>
-                            <th><?php echo lang('waste_unit'); ?></th>
+                            <th><?php echo lang('ingredient'); ?></th>
+                            <th><?php echo lang('unit_qty'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        $total_items = 0;
-                        if (isset($foodWasteReport) && !empty($foodWasteReport)):
-                            foreach ($foodWasteReport as $key => $row):
-                                $total_items++;
+                        $row_num = 0;
+                        if (isset($dailyPurchaseReport) && !empty($dailyPurchaseReport)):
+                            foreach ($dailyPurchaseReport as $row):
+                                $row_num++;
+                                $unit_display = trim(getAmtPCustom($row->total_qty) . ' ' . escape_output($row->unit_name));
                         ?>
                             <tr>
-                                <td class="ir_txt_center"><?php echo escape_output($total_items); ?></td>
-                                <td><?php echo escape_output($row->product_name); ?></td>
-                                <td>
-                                    <?php echo escape_output(getAmtPCustom($row->waste_amount)); ?>
-                                    <?php echo $row->unit_name ? escape_output($row->unit_name) : ''; ?>
-                                </td>
+                                <td class="ir_txt_center"><?php echo $row_num; ?></td>
+                                <td><?php echo escape_output($row->ingredient_name); ?></td>
+                                <td><?php echo $unit_display; ?></td>
                             </tr>
                         <?php
                             endforeach;
@@ -103,11 +101,11 @@
                             </tr>
                         <?php endif; ?>
                     </tbody>
-                    <?php if (isset($foodWasteReport) && !empty($foodWasteReport)): ?>
+                    <?php if (isset($dailyPurchaseReport) && !empty($dailyPurchaseReport)): ?>
                     <tfoot>
                         <tr>
-                            <th colspan="2" class="text-right"><?php echo lang('total'); ?>:</th>
-                            <th><?php echo escape_output($total_items); ?> <?php echo lang('item'); ?>(s)</th>
+                            <th colspan="2" class="text-right"><?php echo lang('grand_total'); ?>:</th>
+                            <th><?php echo $row_num; ?> <?php echo lang('item'); ?>(s)</th>
                         </tr>
                     </tfoot>
                     <?php endif; ?>
@@ -135,7 +133,7 @@
 $(document).ready(function() {
     var table = $('#datatable').DataTable();
     
-    // Sort by column 1 (Product List) ascending by default
+    // Sort by column 1 (Ingredient) ascending by default
     table.order([[1, 'asc']]);
     
     // Dynamically assign sequential row numbers (1, 2, 3...) on draw

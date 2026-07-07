@@ -89,6 +89,9 @@ class Report extends Cl_Controller {
             }elseif($segment_2=="wasteReport" || $segment_2=="foodWasteReport"){
                 $controller = "193";
                 $function = "view";
+            }elseif($segment_2=="dailyPurchaseReport"){
+                $controller = "189";
+                $function = "view";
             }elseif($segment_2=="vatReport"){
                 $controller = "195";
                 $function = "view";
@@ -1137,6 +1140,33 @@ class Report extends Cl_Controller {
         $data['selected_date']  = $selected_date;
         $data['foodWasteReport'] = $this->Report_model->foodWasteReport($selected_date, $outlet_id);
         $data['main_content'] = $this->load->view('report/foodWasteReport', $data, TRUE);
+        $this->load->view('userHome', $data);
+    }
+
+    /**
+     * Daily Purchase Report  – shows ingredients purchased on a given date
+     * @access public
+     * @return void
+     * @param no
+     */
+    public function dailyPurchaseReport() {
+        $data = array();
+        $outlet_id = $this->session->userdata('outlet_id');
+        $selected_date = date('Y-m-d');
+        if (htmlspecialcharscustom($this->input->post('submit'))) {
+            $posted_outlet = isset($_POST['outlet_id']) && $_POST['outlet_id'] ? $_POST['outlet_id'] : '';
+            if ($posted_outlet) {
+                $outlet_id = $posted_outlet;
+            }
+            $raw_date = htmlspecialcharscustom($this->input->post($this->security->xss_clean('date')));
+            if ($raw_date) {
+                $selected_date = date('Y-m-d', strtotime($raw_date));
+            }
+        }
+        $data['outlet_id']          = $outlet_id;
+        $data['selected_date']      = $selected_date;
+        $data['dailyPurchaseReport'] = $this->Report_model->dailyPurchaseReport($selected_date, $outlet_id);
+        $data['main_content'] = $this->load->view('report/dailyPurchaseReport', $data, TRUE);
         $this->load->view('userHome', $data);
     }
 

@@ -593,6 +593,7 @@ $outlet_id = $this->session->userdata('outlet_id');
                                 <li data-access="view-137" class="menu_assign_class" data-menu__cid="irp_10"><a href="<?php echo base_url()?>Waste/wastes">
                                         <?php echo lang('List'); ?> <?php echo lang('waste'); ?></a></li>
                                 <li data-access="view-137" class="menu_assign_class" data-menu__cid="irp_10"><a href="<?php echo base_url()?>Report/foodWasteReport"><?php echo lang('food_waste_report'); ?></a></li>
+                                <li data-access="view-137" class="menu_assign_class" data-menu__cid="irp_10"><a href="<?php echo base_url()?>Report/dailyPurchaseReport"><?php echo lang('daily_purchase_report'); ?></a></li>
 
                             </ul>
                         </li>
@@ -1145,6 +1146,7 @@ $outlet_id = $this->session->userdata('outlet_id');
                                 <li data-access="view-191" class="menu_assign_class" data-menu__cid="irp_15"><a href="<?php echo base_url()?>Report/expenseReport"><?php echo lang('expense_report'); ?></a></li>
                                 <li data-access="view-193" class="menu_assign_class" data-menu__cid="irp_15"><a href="<?php echo base_url()?>Report/wasteReport"><?php echo lang('waste_report'); ?></a></li>
                                 <li data-access="view-193" class="menu_assign_class" data-menu__cid="irp_15"><a href="<?php echo base_url()?>Report/foodWasteReport"><?php echo lang('food_waste_report'); ?></a></li>
+                                <li data-access="view-189" class="menu_assign_class" data-menu__cid="irp_15"><a href="<?php echo base_url()?>Report/dailyPurchaseReport"><?php echo lang('daily_purchase_report'); ?></a></li>
                                 <li data-access="view-195" class="menu_assign_class" data-menu__cid="irp_15"><a href="<?php echo base_url()?>Report/vatReport"><?php echo lang('vat_report'); ?></a></li>
                                 <li data-access="view-197" class="menu_assign_class" data-menu__cid="irp_15"><a href="<?php echo base_url()?>Report/foodMenuSaleByCategories"><?php echo lang('foodMenuSaleByCategories'); ?></a></li>
                                 <li data-access="view-199" class="menu_assign_class" data-menu__cid="irp_15"><a href="<?php echo base_url()?>Report/tipsReport"><?php echo lang('tips_report'); ?></a></li>

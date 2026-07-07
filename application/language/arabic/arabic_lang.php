@@ -1460,5 +1460,7 @@ $lang['food_waste_report'] = 'تقرير مخلفات الطعام';
 $lang['product_list'] = 'قائمة المنتجات';
 $lang['waste_unit'] = 'وحدة النفايات';
 $lang['no_data_found'] = 'لا توجد بيانات.';
+$lang['daily_purchase_report'] = 'تقرير المشتريات اليومية';
+$lang['unit_qty'] = 'الوحدة (كمية)';
 
 

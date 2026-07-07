@@ -1463,4 +1463,6 @@ $lang['food_waste_report'] = 'Informe de desperdicio de alimentos';
 $lang['product_list'] = 'Lista de productos';
 $lang['waste_unit'] = 'Unidad de desperdicio';
 $lang['no_data_found'] = 'No se encontraron datos.';
+$lang['daily_purchase_report'] = 'Informe de compras diarias';
+$lang['unit_qty'] = 'Unidad (Cant)';
 

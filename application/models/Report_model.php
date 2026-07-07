@@ -1940,6 +1940,31 @@ FROM tbl_food_menus_ingredients i  LEFT JOIN (select * from tbl_ingredients wher
     }
 
     /**
+     * Daily Purchase Report  – ingredients purchased on a given date
+     * @access public
+     * @return object
+     * @param string  $date       YYYY-MM-DD date to filter
+     * @param int     $outlet_id
+     */
+    public function dailyPurchaseReport($date = '', $outlet_id = '') {
+        $this->db->select('tbl_ingredients.name as ingredient_name, SUM(tbl_purchase_ingredients.quantity_amount) as total_qty, tbl_units.unit_name');
+        $this->db->from('tbl_purchase_ingredients');
+        $this->db->join('tbl_purchase', 'tbl_purchase.id = tbl_purchase_ingredients.purchase_id', 'left');
+        $this->db->join('tbl_ingredients', 'tbl_ingredients.id = tbl_purchase_ingredients.ingredient_id', 'left');
+        $this->db->join('tbl_units', 'tbl_units.id = tbl_ingredients.unit_id', 'left');
+        if ($date != '') {
+            $this->db->where('tbl_purchase.date', $date);
+        }
+        $this->db->where('tbl_purchase.outlet_id', $outlet_id);
+        $this->db->where('tbl_purchase.del_status', 'Live');
+        $this->db->where('tbl_purchase_ingredients.del_status', 'Live');
+        $this->db->group_by('tbl_purchase_ingredients.ingredient_id');
+        $this->db->order_by('tbl_ingredients.name', 'ASC');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    /**
      * supplier Due Report
      * @access public
      * @return object

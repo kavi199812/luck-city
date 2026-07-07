@@ -1523,4 +1523,6 @@ $lang['food_waste_report'] = 'Food Waste Report';
 $lang['product_list'] = 'Product List';
 $lang['waste_unit'] = 'Waste Unit';
 $lang['no_data_found'] = 'No data found.';
+$lang['daily_purchase_report'] = 'Daily Purchase Report';
+$lang['unit_qty'] = 'Unit (Qty)';
 

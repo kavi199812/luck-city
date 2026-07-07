@@ -1914,6 +1914,32 @@ FROM tbl_food_menus_ingredients i  LEFT JOIN (select * from tbl_ingredients wher
         endif;
     }
     /**
+     * food Waste Report (pre-made food wasted from POS Add Waste button)
+     * @access public
+     * @return object
+     * @param string  $date       YYYY-MM-DD date to filter
+     * @param int     $outlet_id
+     */
+    public function foodWasteReport($date = '', $outlet_id = '') {
+        $this->db->select('tbl_ingredients.name as product_name, SUM(tbl_waste_ingredients.waste_amount) as waste_amount, tbl_units.unit_name, tbl_wastes.date as waste_date');
+        $this->db->from('tbl_waste_ingredients');
+        $this->db->join('tbl_wastes', 'tbl_wastes.id = tbl_waste_ingredients.waste_id');
+        $this->db->join('tbl_ingredients', 'tbl_ingredients.id = tbl_waste_ingredients.ingredient_id');
+        $this->db->join('tbl_units', 'tbl_units.id = tbl_ingredients.unit_id', 'left');
+        if ($date != '') {
+            $this->db->where('tbl_wastes.date', $date);
+        }
+        $this->db->where('tbl_wastes.note', 'Auto-wasted all Pre-Made Food');
+        $this->db->where('tbl_wastes.outlet_id', $outlet_id);
+        $this->db->where('tbl_wastes.del_status', 'Live');
+        $this->db->where('tbl_waste_ingredients.del_status', 'Live');
+        $this->db->group_by('tbl_ingredients.id');
+        $this->db->order_by('tbl_ingredients.name', 'ASC');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    /**
      * supplier Due Report
      * @access public
      * @return object

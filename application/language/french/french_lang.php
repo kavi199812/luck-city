@@ -1456,5 +1456,11 @@ $lang['redirecting']='Redirection...';
 $lang['verification_err']='Le code d\'achat ou le nom d\'utilisateur n\'est pas valide !';
 $lang['verification_success']='Vérifié avec succès !';
 $lang['Purchase_Verification']='Vérification des achats';
+$lang['food_waste'] = 'Gaspillage alimentaire';
+$lang['food_waste_report'] = 'Rapport sur le gaspillage alimentaire';
+$lang['product_list'] = 'Liste des produits';
+$lang['waste_unit'] = 'Unité de gaspillage';
+$lang['no_data_found'] = 'Aucune donnée trouvée.';
+
 
 

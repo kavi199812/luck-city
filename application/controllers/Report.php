@@ -86,7 +86,7 @@ class Report extends Cl_Controller {
             }elseif($segment_2=="expenseReport"){
                 $controller = "191";
                 $function = "view";
-            }elseif($segment_2=="wasteReport"){
+            }elseif($segment_2=="wasteReport" || $segment_2=="foodWasteReport"){
                 $controller = "193";
                 $function = "view";
             }elseif($segment_2=="vatReport"){
@@ -1112,6 +1112,34 @@ class Report extends Cl_Controller {
         $data['main_content'] = $this->load->view('report/wasteReport', $data, TRUE);
         $this->load->view('userHome', $data);
     }
+    /**
+     * food Waste Report  – pre-made food auto-wasted via POS Add Waste button
+     * @access public
+     * @return void
+     * @param no
+     */
+    public function foodWasteReport() {
+        $data = array();
+        $outlet_id = $this->session->userdata('outlet_id');
+        // Default to today
+        $selected_date = date('Y-m-d');
+        if (htmlspecialcharscustom($this->input->post('submit'))) {
+            $posted_outlet = isset($_POST['outlet_id']) && $_POST['outlet_id'] ? $_POST['outlet_id'] : '';
+            if ($posted_outlet) {
+                $outlet_id = $posted_outlet;
+            }
+            $raw_date = htmlspecialcharscustom($this->input->post($this->security->xss_clean('date')));
+            if ($raw_date) {
+                $selected_date = date('Y-m-d', strtotime($raw_date));
+            }
+        }
+        $data['outlet_id']      = $outlet_id;
+        $data['selected_date']  = $selected_date;
+        $data['foodWasteReport'] = $this->Report_model->foodWasteReport($selected_date, $outlet_id);
+        $data['main_content'] = $this->load->view('report/foodWasteReport', $data, TRUE);
+        $this->load->view('userHome', $data);
+    }
+
       /**
      * expense Report
      * @access public

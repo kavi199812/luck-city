@@ -1455,4 +1455,10 @@ $lang['redirecting']='إعادة توجيه...';
 $lang['verification_err']='رمز الشراء أو اسم المستخدم غير صالح!';
 $lang['verification_success']='تم التحقق بنجاح!';
 $lang['Purchase_Verification']='التحقق من الشراء';
+$lang['food_waste'] = 'مخلفات الطعام';
+$lang['food_waste_report'] = 'تقرير مخلفات الطعام';
+$lang['product_list'] = 'قائمة المنتجات';
+$lang['waste_unit'] = 'وحدة النفايات';
+$lang['no_data_found'] = 'لا توجد بيانات.';
+
 

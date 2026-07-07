@@ -1518,3 +1518,9 @@ $lang['redirecting'] = 'Redirecting...';
 $lang['verification_err'] = 'Purchase Code or Username is not valid!';
 $lang['verification_success'] = 'Successfully verified!';
 $lang['Purchase_Verification'] = 'Purchase Verification';
+$lang['food_waste'] = 'Food Waste';
+$lang['food_waste_report'] = 'Food Waste Report';
+$lang['product_list'] = 'Product List';
+$lang['waste_unit'] = 'Waste Unit';
+$lang['no_data_found'] = 'No data found.';
+

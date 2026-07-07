@@ -901,4 +901,10 @@ $lang['site_setting']='Configuración del sitio';
 $lang['footer']='Pie de página del sitio';
 $lang['system_logo']='Logotipo del sitio';
 $lang['email_send_to']='Correo electrónico del remitente';
+$lang['food_waste'] = 'Desperdicio de alimentos';
+$lang['food_waste_report'] = 'Informe de desperdicio de alimentos';
+$lang['product_list'] = 'Lista de productos';
+$lang['waste_unit'] = 'Unidad de desperdicio';
+$lang['no_data_found'] = 'No se encontraron datos.';
+
 

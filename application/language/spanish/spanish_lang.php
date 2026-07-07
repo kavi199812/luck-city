@@ -1458,3 +1458,9 @@ $lang['redirecting']='Redireccionando...';
 $lang['verification_err']='¡El código de compra o el nombre de usuario no son válidos!';
 $lang['verification_success']='¡Verificado con éxito!';
 $lang['Purchase_Verification']='Verificación de compra';
+$lang['food_waste'] = 'Desperdicio de alimentos';
+$lang['food_waste_report'] = 'Informe de desperdicio de alimentos';
+$lang['product_list'] = 'Lista de productos';
+$lang['waste_unit'] = 'Unidad de desperdicio';
+$lang['no_data_found'] = 'No se encontraron datos.';
+

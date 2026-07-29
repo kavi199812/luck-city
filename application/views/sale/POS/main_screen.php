@@ -1352,7 +1352,9 @@ if ($wl) {
                 </div>
             </div>
             <div class="main_right <?php echo escape_output($is_self_order_class) ? 'online_order' : '' ?>">
-                <form autocomplete="off" class="search-category-form" id="search_form">
+                <div id="main_right_inner_flex">
+                    <div id="product_section_left">
+                        <form autocomplete="off" class="search-category-form" id="search_form">
                     <?php if (isFoodCourt() && $this->session->userdata('role') != 'Admin'): ?>
                         <div class="search-category-item">
                             <div class="item">
@@ -1431,10 +1433,43 @@ if ($wl) {
                             <!--This variable could not be escaped because this is html content-->
                             <?php echo ($menu_to_show); ?>
                         </div>
+                        </div>
                     </div>
                 </div>
 
-                <script>
+                <!-- Permanent Numeric Keypad Panel -->
+                <div id="pos_numpad_panel">
+                    <div class="numpad_header_box">
+                        <div class="numpad_target_title" id="numpad_target_name">Select Item</div>
+                        <div class="numpad_val_display" id="numpad_val_display">0</div>
+                    </div>
+                    <div class="numpad_grid">
+                        <button type="button" class="numpad_btn numpad_key" data-val="7">7</button>
+                        <button type="button" class="numpad_btn numpad_key" data-val="8">8</button>
+                        <button type="button" class="numpad_btn numpad_key" data-val="9">9</button>
+                        
+                        <button type="button" class="numpad_btn numpad_key" data-val="4">4</button>
+                        <button type="button" class="numpad_btn numpad_key" data-val="5">5</button>
+                        <button type="button" class="numpad_btn numpad_key" data-val="6">6</button>
+                        
+                        <button type="button" class="numpad_btn numpad_key" data-val="1">1</button>
+                        <button type="button" class="numpad_btn numpad_key" data-val="2">2</button>
+                        <button type="button" class="numpad_btn numpad_key" data-val="3">3</button>
+                        
+                        <button type="button" class="numpad_btn numpad_btn_action numpad_btn_minus" id="numpad_minus_btn"><i class="fas fa-minus"></i></button>
+                        <button type="button" class="numpad_btn numpad_key" data-val="0">0</button>
+                        <button type="button" class="numpad_btn numpad_btn_action numpad_btn_plus" id="numpad_plus_btn"><i class="fas fa-plus"></i></button>
+                        
+                        <button type="button" class="numpad_btn numpad_btn_action numpad_backspace" id="numpad_backspace_btn"><i class="fas fa-backspace"></i></button>
+                        <button type="button" class="numpad_btn numpad_btn_clear" id="numpad_clear_btn">C</button>
+                        <button type="button" class="numpad_btn numpad_btn_action" id="numpad_dot_btn">.</button>
+                        
+                        <button type="button" class="numpad_btn numpad_btn_enter" id="numpad_enter_btn">OK</button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
                     $(document).ready(function () {
                         // Toggle Take Away Mode for bottom buttons
                         // Toggle Take Away Mode for bottom buttons
@@ -5740,11 +5775,156 @@ if ($wl) {
         });
     </script>
 
-    <!-- Auto Open Customer Panel -->
+    <!-- Permanent Numeric Keypad Event Handlers -->
     <script type="text/javascript">
-        $(document).ready(function(){
-            let customer_panel_url = "<?php echo base_url() ?>customer-panel";
-            window.open(customer_panel_url, 'CustomerPanel', 'width=800,height=600');
+        $(document).ready(function() {
+            let currentSelectedRow = null;
+            let isFreshTyped = false;
+
+            // Sync function using POS native increase/decrease handlers
+            function setTargetQty(targetQty) {
+                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
+                targetQty = parseInt(targetQty);
+                if (isNaN(targetQty) || targetQty <= 0) targetQty = 1;
+
+                let qtySpan = currentSelectedRow.find('.third_column span.qty_item_custom');
+                if (!qtySpan.length) {
+                    qtySpan = currentSelectedRow.find('.qty_item_custom');
+                }
+                
+                let currentQty = parseInt(qtySpan.text() || 1);
+                if (isNaN(currentQty) || currentQty <= 0) currentQty = 1;
+
+                let diff = targetQty - currentQty;
+
+                if (diff > 0) {
+                    let incBtn = currentSelectedRow.find('.increase_item_table');
+                    for (let i = 0; i < diff; i++) {
+                        incBtn.trigger('click');
+                    }
+                } else if (diff < 0) {
+                    let decBtn = currentSelectedRow.find('.decrease_item_table');
+                    for (let i = 0; i < Math.abs(diff); i++) {
+                        decBtn.trigger('click');
+                    }
+                }
+
+                let finalQty = parseInt(qtySpan.text() || targetQty);
+                $('#numpad_val_display').text(finalQty);
+            }
+
+            // Highlight row on click
+            $(document).on('click', '.order_holder .single_order', function(e) {
+                if ($(e.target).hasClass('removeCartItem') || $(e.target).hasClass('fa-times')) return;
+
+                $('.order_holder .single_order').removeClass('selected_numpad_item');
+                currentSelectedRow = $(this);
+                currentSelectedRow.addClass('selected_numpad_item');
+
+                const itemName = currentSelectedRow.find('.first_column span').first().text().trim();
+                let qtySpan = currentSelectedRow.find('.third_column span.qty_item_custom');
+                if (!qtySpan.length) qtySpan = currentSelectedRow.find('.qty_item_custom');
+                const itemQty = qtySpan.text().trim();
+
+                $('#numpad_target_name').text(itemName || 'Selected Item');
+                $('#numpad_val_display').text(itemQty || '1');
+                isFreshTyped = true;
+            });
+
+            // Automatically select latest row when cart items change
+            const observer = new MutationObserver(function() {
+                setTimeout(function() {
+                    if (!$('.order_holder .single_order.selected_numpad_item').length) {
+                        const lastRow = $('.order_holder .single_order').last();
+                        if (lastRow.length) {
+                            lastRow.trigger('click');
+                        } else {
+                            currentSelectedRow = null;
+                            $('#numpad_target_name').text('No Item');
+                            $('#numpad_val_display').text('0');
+                        }
+                    }
+                }, 100);
+            });
+
+            const targetNode = document.querySelector('.order_holder');
+            if (targetNode) {
+                observer.observe(targetNode, { childList: true, subtree: true });
+            }
+
+            // Digit click handler
+            $(document).on('click', '.numpad_key', function() {
+                if (!currentSelectedRow || currentSelectedRow.length === 0) {
+                    const firstRow = $('.order_holder .single_order').first();
+                    if (firstRow.length) firstRow.trigger('click');
+                    else return;
+                }
+
+                const digit = $(this).attr('data-val');
+                let currentVal = $('#numpad_val_display').text().trim();
+
+                if (isFreshTyped || currentVal === '0') {
+                    currentVal = digit;
+                    isFreshTyped = false;
+                } else {
+                    if (currentVal.length < 5) {
+                        currentVal += digit;
+                    }
+                }
+
+                setTargetQty(currentVal);
+            });
+
+            // Plus (+) button
+            $(document).on('click', '#numpad_plus_btn', function() {
+                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
+                currentSelectedRow.find('.increase_item_table').trigger('click');
+                let qtySpan = currentSelectedRow.find('.third_column span.qty_item_custom');
+                if (!qtySpan.length) qtySpan = currentSelectedRow.find('.qty_item_custom');
+                $('#numpad_val_display').text(qtySpan.text().trim() || '1');
+                isFreshTyped = true;
+            });
+
+            // Minus (-) button
+            $(document).on('click', '#numpad_minus_btn', function() {
+                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
+                currentSelectedRow.find('.decrease_item_table').trigger('click');
+                let qtySpan = currentSelectedRow.find('.third_column span.qty_item_custom');
+                if (!qtySpan.length) qtySpan = currentSelectedRow.find('.qty_item_custom');
+                $('#numpad_val_display').text(qtySpan.text().trim() || '1');
+                isFreshTyped = true;
+            });
+
+            // Backspace button
+            $(document).on('click', '#numpad_backspace_btn', function() {
+                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
+                let currentVal = $('#numpad_val_display').text().trim();
+                if (currentVal.length > 1) {
+                    currentVal = currentVal.substring(0, currentVal.length - 1);
+                } else {
+                    currentVal = '1';
+                }
+                setTargetQty(currentVal);
+                isFreshTyped = true;
+            });
+
+            // Clear (C) button
+            $(document).on('click', '#numpad_clear_btn', function() {
+                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
+                setTargetQty(1);
+                isFreshTyped = true;
+            });
+
+            // Dot (.) button
+            $(document).on('click', '#numpad_dot_btn', function() {
+                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
+            });
+
+            // OK / Enter button
+            $(document).on('click', '#numpad_enter_btn', function() {
+                isFreshTyped = true;
+                if (typeof focusSearch === 'function') focusSearch();
+            });
         });
     </script>
 </body>

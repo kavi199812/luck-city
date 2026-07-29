@@ -133,3 +133,158 @@
     padding-bottom: 6px !important;
     margin-bottom: 8px !important;
 }
+
+/* ==========================================================================
+   Permanent Numeric Keypad Panel (Inside main_right)
+   ========================================================================== */
+.main_right {
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+#main_right_inner_flex {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    height: 100% !important;
+    gap: 6px;
+    align-items: stretch;
+}
+
+#product_section_left {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+}
+
+#pos_numpad_panel {
+    width: 175px !important;
+    min-width: 175px !important;
+    max-width: 175px !important;
+    flex-shrink: 0 !important;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    user-select: none;
+    z-index: 5;
+    height: calc(100vh - 120px) !important;
+    max-height: 620px;
+}
+
+.numpad_header_box {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 4px 6px;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.numpad_target_title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #0284c7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.numpad_val_display {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    min-height: 26px;
+}
+
+.numpad_grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    flex-grow: 1;
+    align-content: start;
+}
+
+.numpad_btn {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.08s ease;
+    box-shadow: 0 2px 0 #cbd5e1;
+    padding: 0;
+}
+
+.numpad_btn:hover {
+    background: #e2e8f0;
+}
+
+.numpad_btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 #cbd5e1;
+    background: #cbd5e1;
+}
+
+.numpad_btn_action {
+    background: #e2e8f0;
+    color: #0369a1;
+}
+
+.numpad_btn_plus {
+    background: #e0f2fe;
+    color: #0284c7;
+    border-color: #7dd3fc;
+    box-shadow: 0 2px 0 #7dd3fc;
+}
+
+.numpad_btn_minus {
+    background: #ffedd5;
+    color: #c2410c;
+    border-color: #fdba74;
+    box-shadow: 0 2px 0 #fdba74;
+}
+
+.numpad_btn_clear {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+    box-shadow: 0 2px 0 #fca5a5;
+}
+
+.numpad_btn_enter {
+    grid-column: span 3;
+    background: #16a34a;
+    color: #ffffff;
+    border-color: #15803d;
+    box-shadow: 0 2px 0 #15803d;
+    font-size: 15px;
+    font-weight: 700;
+    height: 38px;
+    margin-top: 2px;
+    text-transform: uppercase;
+}
+
+.numpad_btn_enter:hover {
+    background: #15803d;
+}
+
+/* Highlight active cart item when selected */
+.order_holder .single_order.selected_numpad_item {
+    background-color: #e0f2fe !important;
+    border: 2px solid #0284c7 !important;
+    box-shadow: 0 0 6px rgba(2, 132, 199, 0.3) !important;
+}

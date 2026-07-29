@@ -2,6 +2,49 @@
     background-color: #e3f2fd !important;
 }
 
+/* ══════════════════════════════════════
+   Hide Discount Column - Header + Rows
+   ══════════════════════════════════════ */
+
+/* Hide discount header */
+.order_table_holder .order_table_header_row #single_order_discount {
+    display: none !important;
+}
+
+/* Hide discount cell in each order row */
+.order_table_holder .order_holder .single_order .forth_column {
+    display: none !important;
+}
+
+/* Redistribute widths to fill the gap (original discount was 14% header / 10% row) */
+/* Header columns */
+.order_table_holder .order_table_header_row #single_order_item {
+    width: 42% !important;
+}
+.order_table_holder .order_table_header_row #single_order_price {
+    width: 14% !important;
+}
+.order_table_holder .order_table_header_row #single_order_qty {
+    width: 18% !important;
+}
+.order_table_holder .order_table_header_row #single_order_total {
+    width: 14% !important;
+}
+
+/* Row columns */
+.order_table_holder .order_holder .single_order .first_column {
+    width: 38% !important;
+}
+.order_table_holder .order_holder .single_order .second_column {
+    width: 14% !important;
+}
+.order_table_holder .order_holder .single_order .third_column {
+    width: 24% !important;
+}
+.order_table_holder .order_holder .single_order .fifth_column {
+    width: 14% !important;
+}
+
 
 
 .ir_w_50 {
@@ -155,7 +198,7 @@
     flex: 1 1 auto !important;
     min-width: 0 !important;
     height: 100% !important;
-    overflow-y: auto !important;
+    overflow: hidden !important;
 }
 
 #pos_numpad_panel {

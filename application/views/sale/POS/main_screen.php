@@ -5779,38 +5779,145 @@ if ($wl) {
     <script type="text/javascript">
         $(document).ready(function() {
             let currentSelectedRow = null;
-            let isFreshTyped = false;
+            let isFreshTyped = true;
 
-            // Sync function using POS native increase/decrease handlers
-            function setTargetQty(targetQty) {
-                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
+            // Fail-safe direct calculation of Total Payable across all items in cart
+            function recalculateCartTotals() {
+                var cartTotal = 0;
+                $('.order_holder .single_order').each(function() {
+                    var rQty = parseFloat($(this).find('.third_column span.qty_item_custom, .qty_item_custom').first().text() || 1);
+                    var rUnitPrice = parseFloat($(this).find('.second_column span').first().text().replace(/,/g, '') || 0);
+                    if (!isNaN(rQty) && !isNaN(rUnitPrice)) {
+                        cartTotal += (rQty * rUnitPrice);
+                    }
+                });
+
+                var precision = (typeof ir_precision !== 'undefined') ? ir_precision : 2;
+                var formattedSubTotal = cartTotal.toFixed(precision);
+                $('#sub_total').html(formattedSubTotal);
+                $('#sub_total_show').html(formattedSubTotal);
+
+                var subDiscount = parseFloat($('#sub_total_discount_amount').text() || 0) || 0;
+                var vatAmt = parseFloat($('#show_vat_modal').text() || 0) || 0;
+                var deliveryAmt = parseFloat($('#show_charge_amount').text() || 0) || 0;
+                var tipsAmt = parseFloat($('#show_tips_amount').text() || 0) || 0;
+
+                var finalPayable = (cartTotal - subDiscount + vatAmt + deliveryAmt + tipsAmt).toFixed(precision);
+                $('#total_payable').html(finalPayable);
+            }
+
+            // Direct item quantity setter - fast, 100% reliable for multi-digit values (35, 50, 10)
+            function setItemQtyDirect($row, targetQty) {
+                if (!$row || !$row.length) return;
                 targetQty = parseInt(targetQty);
-                if (isNaN(targetQty) || targetQty <= 0) targetQty = 1;
+                if (isNaN(targetQty) || targetQty < 1) targetQty = 1;
 
-                let qtySpan = currentSelectedRow.find('.third_column span.qty_item_custom');
-                if (!qtySpan.length) {
-                    qtySpan = currentSelectedRow.find('.qty_item_custom');
+                // 1. Locate unit price from second_column (with fallbacks)
+                var unitPrice = 0;
+                var $priceSpan = $row.find('.second_column span');
+                if ($priceSpan.length) {
+                    var txt = $priceSpan.first().text().trim().replace(/,/g, '');
+                    unitPrice = parseFloat(txt) || 0;
                 }
-                
-                let currentQty = parseInt(qtySpan.text() || 1);
-                if (isNaN(currentQty) || currentQty <= 0) currentQty = 1;
 
-                let diff = targetQty - currentQty;
-
-                if (diff > 0) {
-                    let incBtn = currentSelectedRow.find('.increase_item_table');
-                    for (let i = 0; i < diff; i++) {
-                        incBtn.trigger('click');
-                    }
-                } else if (diff < 0) {
-                    let decBtn = currentSelectedRow.find('.decrease_item_table');
-                    for (let i = 0; i < Math.abs(diff); i++) {
-                        decBtn.trigger('click');
+                // 2. Extract item ID
+                var itemId = $row.attr('data-id');
+                if (!itemId) {
+                    var incBtn = $row.find('.increase_item_table');
+                    if (incBtn.length && incBtn.attr('id')) {
+                        itemId = incBtn.attr('id').replace('increase_item_table_', '');
                     }
                 }
 
-                let finalQty = parseInt(qtySpan.text() || targetQty);
-                $('#numpad_val_display').text(finalQty);
+                if (unitPrice === 0 && itemId) {
+                    var pTxt = $('#item_price_table_' + itemId).text().trim().replace(/,/g, '');
+                    unitPrice = parseFloat(pTxt) || 0;
+                }
+
+                var precision = (typeof ir_precision !== 'undefined') ? ir_precision : 2;
+                var updatedTotalPrice = (parseFloat(targetQty) * unitPrice).toFixed(precision);
+
+                // 3. Update quantity text in DOM (both scoped and by ID)
+                $row.find('.qty_item_custom').text(targetQty).html(targetQty);
+                $row.find('.third_column span').text(targetQty).html(targetQty);
+
+                // 4. Update item_price_without_discount & fifth_column (total price) in DOM
+                $row.find('.item_price_without_discount').text(updatedTotalPrice).html(updatedTotalPrice);
+                $row.find('.first_portion .item_price_without_discount').text(updatedTotalPrice).html(updatedTotalPrice);
+                $row.find('.fifth_column span').text(updatedTotalPrice).html(updatedTotalPrice);
+                $row.find('.first_portion .fifth_column span').text(updatedTotalPrice).html(updatedTotalPrice);
+
+                // 5. Update by ID across the entire document
+                if (itemId) {
+                    $('#item_quantity_table_' + itemId).text(targetQty).html(targetQty);
+                    $('#item_price_without_discount_' + itemId).text(updatedTotalPrice).html(updatedTotalPrice);
+                    $('#item_total_price_table_' + itemId).text(updatedTotalPrice).html(updatedTotalPrice);
+                }
+
+                // 6. Free item qty update
+                if (itemId && typeof increase_free_item_qty === 'function') {
+                    increase_free_item_qty(2, targetQty, itemId);
+                }
+
+                // 7. Recalculate cart totals natively
+                if (typeof do_addition_of_item_and_modifiers_price === 'function') {
+                    do_addition_of_item_and_modifiers_price();
+                }
+
+                // 8. Fail-safe recalculation of Total Payable directly from cart items
+                recalculateCartTotals();
+
+                // 9. Update numpad display
+                $('#numpad_val_display').text(targetQty);
+            }
+
+            // Centralized digit input handler (handles screen numpad & physical keyboard)
+            function inputDigit(digit) {
+                if (!currentSelectedRow || !currentSelectedRow.length) {
+                    var firstRow = $('.order_holder .single_order').first();
+                    if (firstRow.length) {
+                        firstRow.trigger('click');
+                    } else {
+                        return;
+                    }
+                }
+
+                var currentVal = $('#numpad_val_display').text().trim();
+                var newVal;
+
+                if (isFreshTyped || currentVal === '0') {
+                    newVal = digit;
+                    isFreshTyped = false;
+                } else {
+                    if (currentVal.length < 4) {
+                        newVal = currentVal + digit;
+                    } else {
+                        newVal = currentVal;
+                    }
+                }
+
+                setItemQtyDirect(currentSelectedRow, newVal);
+            }
+
+            // Backspace handler
+            function handleBackspace() {
+                if (!currentSelectedRow || !currentSelectedRow.length) return;
+                var currentVal = $('#numpad_val_display').text().trim();
+                var newVal;
+                if (currentVal.length > 1) {
+                    newVal = currentVal.slice(0, -1);
+                } else {
+                    newVal = '1';
+                    isFreshTyped = true;
+                }
+                setItemQtyDirect(currentSelectedRow, newVal);
+            }
+
+            // Clear handler
+            function handleClear() {
+                if (!currentSelectedRow || !currentSelectedRow.length) return;
+                setItemQtyDirect(currentSelectedRow, 1);
+                isFreshTyped = true;
             }
 
             // Highlight row on click
@@ -5831,100 +5938,112 @@ if ($wl) {
                 isFreshTyped = true;
             });
 
-            // Automatically select latest row when cart items change
+            // Auto-select newest cart row when product card is clicked (instant 0ms)
+            $(document).on('click', '#inline_product_grid .single_item', function() {
+                setTimeout(function() {
+                    var firstRow = $('.order_holder .single_order').first();
+                    if (firstRow.length) {
+                        firstRow.trigger('click');
+                    }
+                }, 0);
+            });
+
+            // Fallback: if no row selected (e.g. after item removal), select top row
             const observer = new MutationObserver(function() {
                 setTimeout(function() {
                     if (!$('.order_holder .single_order.selected_numpad_item').length) {
-                        const lastRow = $('.order_holder .single_order').last();
-                        if (lastRow.length) {
-                            lastRow.trigger('click');
+                        const firstRow = $('.order_holder .single_order').first();
+                        if (firstRow.length) {
+                            firstRow.trigger('click');
                         } else {
                             currentSelectedRow = null;
                             $('#numpad_target_name').text('No Item');
                             $('#numpad_val_display').text('0');
                         }
                     }
-                }, 100);
+                }, 50);
             });
 
             const targetNode = document.querySelector('.order_holder');
             if (targetNode) {
-                observer.observe(targetNode, { childList: true, subtree: true });
+                observer.observe(targetNode, { childList: true, subtree: false });
             }
 
-            // Digit click handler
+            // Recalculate totals on native cart plus/minus/remove buttons
+            $(document).on('click', '.increase_item_table, .decrease_item_table, .removeCartItem', function() {
+                setTimeout(function() {
+                    recalculateCartTotals();
+                }, 50);
+            });
+
+            // Screen numpad digit button click (0-9)
             $(document).on('click', '.numpad_key', function() {
-                if (!currentSelectedRow || currentSelectedRow.length === 0) {
-                    const firstRow = $('.order_holder .single_order').first();
-                    if (firstRow.length) firstRow.trigger('click');
-                    else return;
-                }
-
                 const digit = $(this).attr('data-val');
-                let currentVal = $('#numpad_val_display').text().trim();
-
-                if (isFreshTyped || currentVal === '0') {
-                    currentVal = digit;
-                    isFreshTyped = false;
-                } else {
-                    if (currentVal.length < 5) {
-                        currentVal += digit;
-                    }
-                }
-
-                setTargetQty(currentVal);
+                inputDigit(digit);
             });
 
-            // Plus (+) button
+            // Plus (+) button click
             $(document).on('click', '#numpad_plus_btn', function() {
-                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
-                currentSelectedRow.find('.increase_item_table').trigger('click');
-                let qtySpan = currentSelectedRow.find('.third_column span.qty_item_custom');
-                if (!qtySpan.length) qtySpan = currentSelectedRow.find('.qty_item_custom');
-                $('#numpad_val_display').text(qtySpan.text().trim() || '1');
+                if (!currentSelectedRow || !currentSelectedRow.length) return;
+                var currentQty = parseInt($('#numpad_val_display').text().trim() || 1);
+                setItemQtyDirect(currentSelectedRow, currentQty + 1);
                 isFreshTyped = true;
             });
 
-            // Minus (-) button
+            // Minus (-) button click
             $(document).on('click', '#numpad_minus_btn', function() {
-                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
-                currentSelectedRow.find('.decrease_item_table').trigger('click');
-                let qtySpan = currentSelectedRow.find('.third_column span.qty_item_custom');
-                if (!qtySpan.length) qtySpan = currentSelectedRow.find('.qty_item_custom');
-                $('#numpad_val_display').text(qtySpan.text().trim() || '1');
-                isFreshTyped = true;
-            });
-
-            // Backspace button
-            $(document).on('click', '#numpad_backspace_btn', function() {
-                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
-                let currentVal = $('#numpad_val_display').text().trim();
-                if (currentVal.length > 1) {
-                    currentVal = currentVal.substring(0, currentVal.length - 1);
-                } else {
-                    currentVal = '1';
+                if (!currentSelectedRow || !currentSelectedRow.length) return;
+                var currentQty = parseInt($('#numpad_val_display').text().trim() || 1);
+                if (currentQty > 1) {
+                    setItemQtyDirect(currentSelectedRow, currentQty - 1);
                 }
-                setTargetQty(currentVal);
                 isFreshTyped = true;
             });
 
-            // Clear (C) button
+            // Backspace button click
+            $(document).on('click', '#numpad_backspace_btn', function() {
+                handleBackspace();
+            });
+
+            // Clear (C) button click
             $(document).on('click', '#numpad_clear_btn', function() {
-                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
-                setTargetQty(1);
-                isFreshTyped = true;
+                handleClear();
             });
 
-            // Dot (.) button
-            $(document).on('click', '#numpad_dot_btn', function() {
-                if (!currentSelectedRow || currentSelectedRow.length === 0) return;
-            });
-
-            // OK / Enter button
+            // OK / Enter button click
             $(document).on('click', '#numpad_enter_btn', function() {
                 isFreshTyped = true;
-                if (typeof focusSearch === 'function') focusSearch();
             });
+
+            // Physical Keyboard listener
+            $(document).on('keydown', function(e) {
+                // Ignore keypresses when user is typing inside input/textarea/select
+                var tag = (document.activeElement || {}).tagName;
+                if (tag && /^(INPUT|TEXTAREA|SELECT)$/i.test(tag)) return;
+
+                var key = e.key;
+
+                if (/^[0-9]$/.test(key)) {
+                    e.preventDefault();
+                    inputDigit(key);
+                } else if (key === 'Backspace') {
+                    e.preventDefault();
+                    handleBackspace();
+                } else if (key === 'Enter') {
+                    e.preventDefault();
+                    isFreshTyped = true;
+                } else if (key === 'Escape' || key === 'Delete') {
+                    e.preventDefault();
+                    handleClear();
+                } else if (key === '+' || key === '=') {
+                    e.preventDefault();
+                    $('#numpad_plus_btn').trigger('click');
+                } else if (key === '-') {
+                    e.preventDefault();
+                    $('#numpad_minus_btn').trigger('click');
+                }
+            });
+
         });
     </script>
 </body>

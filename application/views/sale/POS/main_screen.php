@@ -5617,6 +5617,11 @@ if ($wl) {
                     var capacityInfo = '<p style="margin: 5px 0 10px 0; font-size: 13px; color: #aaa;">Capacity: ' + t.sit_capacity + ' Persons</p>';
                     var areaInfo = t.area_name ? '<span style="font-size: 11px; color: #888; display: block; margin-bottom: 5px;">' + t.area_name + '</span>' : '';
 
+                    // Invoice button — only shown for occupied tables
+                    var invoiceBtn = t.has_active_order
+                        ? `<button type="button" class="btn-table-invoice" data-sale-id="${t.sale_id}" data-sale-no="${t.sale_no}" data-table-name="${t.name}" style="width:100%; margin-top:6px; border:none; padding:8px; border-radius:4px; font-weight:600; cursor:pointer; background:linear-gradient(135deg,#0d6efd,#0b5ed7); color:#fff; display:flex; align-items:center; justify-content:center; gap:6px; transition:opacity 0.2s;"><i class="fal fa-file-invoice"></i> Invoice</button>`
+                        : '';
+
                     var cardHtml = `
                         <div class="table-card-premium ${cardClass}" data-id="${t.id}" data-name="${t.name}" data-capacity="${t.sit_capacity}" data-area-id="${t.area}" data-has-order="${t.has_active_order}" data-sale-id="${t.sale_id}" data-sale-no="${t.sale_no}">
                             <span class="status-badge ${badgeClass}">${badgeText}</span>
@@ -5625,6 +5630,7 @@ if ($wl) {
                             ${capacityInfo}
                             ${orderInfo}
                             <button type="button" style="width: 100%; border: none; padding: 8px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; ${btnStyle}">${btnText}</button>
+                            ${invoiceBtn}
                         </div>
                     `;
                     grid.append(cardHtml);
@@ -5770,6 +5776,101 @@ if ($wl) {
                     $('#dine_in_table_modal').addClass('display_none').removeClass('active').css('display', 'none');
                     $(".pos__modal__overlay").fadeOut(200);
                     toastr['success']("Table " + tableName + " selected successfully.", 'Success');
+                }
+            });
+
+            // ── Invoice Button on Occupied Table Cards ──
+            $(document).on('click', '.btn-table-invoice', function(e) {
+                e.stopPropagation(); // Prevent triggering the parent card's Modify Order flow
+
+                var saleId    = $(this).attr('data-sale-id');
+                var tableName = $(this).attr('data-table-name');
+
+                // Close the table selection modal first
+                $('#dine_in_table_modal').addClass('display_none').removeClass('active').css('display', 'none');
+                $('.pos__modal__overlay').fadeOut(200);
+
+                // Helper: select the running order then trigger invoice
+                var triggerInvoiceFlow = function() {
+                    var orderElement = $('#order_' + saleId);
+                    if (orderElement.length > 0) {
+                        // Select the running order in the left panel
+                        orderElement.click();
+
+                        // Step 1: Trigger the primary Invoice button
+                        setTimeout(function() {
+                            var $invoiceBtn = $('#create_invoice_and_close');
+                            if ($invoiceBtn.length) {
+                                $invoiceBtn.click();
+                            } else {
+                                $('#order_details_create_invoice_close_order_button').click();
+                            }
+
+                            // Step 2: Auto-click "Single Pay" to skip the Split Bill popup
+                            setTimeout(function() {
+                                var $singlePay = $('.invoice_btn_class[data-type="1"]');
+                                if ($singlePay.length) {
+                                    $singlePay.click();
+                                }
+                            }, 200);
+                        }, 300);
+                    } else {
+                        // Fallback: load order via AJAX, then trigger invoice
+                        $.ajax({
+                            url: base_url + 'Sale/get_all_information_of_a_sale_by_table_id_ajax',
+                            method: 'POST',
+                            data: { table_id: saleId, csrf_irestoraplus: csrf_value_ },
+                            success: function(response) {
+                                try {
+                                    response = JSON.parse(response);
+                                    if (typeof arrange_info_on_the_cart_to_modify === 'function') {
+                                        arrange_info_on_the_cart_to_modify(response);
+                                        $('#update_sale_id').val(response.id);
+                                    }
+                                    // Step 1: Trigger invoice
+                                    setTimeout(function() {
+                                        var $invoiceBtn = $('#create_invoice_and_close');
+                                        if ($invoiceBtn.length) {
+                                            $invoiceBtn.click();
+                                        } else {
+                                            $('#order_details_create_invoice_close_order_button').click();
+                                        }
+                                        // Step 2: Auto-click "Single Pay" to skip the Split Bill popup
+                                        setTimeout(function() {
+                                            var $singlePay = $('.invoice_btn_class[data-type="1"]');
+                                            if ($singlePay.length) {
+                                                $singlePay.click();
+                                            }
+                                        }, 200);
+                                    }, 400);
+                                } catch(err) {
+                                    toastr['error']('Failed to load order for invoicing.', 'Error');
+                                }
+                            },
+                            error: function() {
+                                toastr['error']('Failed to connect to server.', 'Error');
+                            }
+                        });
+                    }
+                };
+
+                // If cart already has items, warn user before proceeding
+                var cartItems = $('.order_holder .single_order').length;
+                if (cartItems > 0) {
+                    swal({
+                        title: (typeof warning !== 'undefined' ? warning : 'Warning') + '!',
+                        text: (typeof cart_not_empty !== 'undefined' ? cart_not_empty : 'Cart has items. They will be cleared.'),
+                        confirmButtonColor: '#3c8dbc',
+                        confirmButtonText: (typeof ok !== 'undefined' ? ok : 'OK'),
+                        showCancelButton: true
+                    }, function(isConfirm) {
+                        if (isConfirm) {
+                            $('.order_holder').empty();
+                            triggerInvoiceFlow();
+                        }
+                    });
+                } else {
+                    triggerInvoiceFlow();
                 }
             });
         });

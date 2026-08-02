@@ -1403,7 +1403,7 @@ class Sale extends Cl_Controller {
                 foreach ($printers as $ky=>$value){
                     if(isset($value->id) && $value->id){
                         if ($is_takeaway) {
-                            $sale_items = $this->Common_model->getAllKitchenItemsAutoTakeaway($sale_id);
+                            $sale_items = $this->Common_model->getAllKitchenItemsAutoTakeaway($sale_id,$value->id);
                         } else {
                             $sale_items = $this->Common_model->getAllKitchenItemsAuto($sale_id,$value->id);
                         }

@@ -2008,6 +2008,18 @@
         $(".kot_exist_checker").html('');
         for (let key in order.items) {
             let this_item = order.items[key];
+            //skip items whose category's "KOT Print For" setting excludes this order's order type
+            let item_category_info = search_by_menu_id(this_item.food_menu_id, window.items);
+            let item_category_kot_order_type = (item_category_info && item_category_info[0]) ? item_category_info[0].category_kot_order_type : '';
+            if (order.order_type == 2) {
+                if (item_category_kot_order_type == 'dine_in') {
+                    continue;
+                }
+            } else {
+                if (item_category_kot_order_type == 'takeaway') {
+                    continue;
+                }
+            }
             let if_kot_print = check_old_kot(order.sale_no, this_item.food_menu_id, kot_print, this_item.qty);
             let updated_qty = this_item.qty;
             if (!if_kot_print) {
@@ -4707,6 +4719,15 @@
             show_all_items();
         }
     });
+    //when the cart becomes completely empty (item removed / order cancelled / order closed),
+    //release the previously selected order type so the next item added re-evaluates
+    //the popup / category default order type logic from scratch
+    function resetOrderTypeSelectionIfCartEmpty() {
+        if ($(".order_holder .single_order").length === 0) {
+            $(".main_top").find("button").attr("data-selected", "unselected");
+            $("#table_button").attr("disabled", false);
+        }
+    }
     $(document).on(
         "click",
         ".dine_in_button,.take_away_button,.delivery_button",
@@ -5515,6 +5536,30 @@
             }
 
         } else {
+            //check if the item's category has a default order type override configured
+            let category_default_order_type = '';
+            for (let i = 0; i < window.items.length; i++) {
+                if (items[i].item_id == item_id) {
+                    category_default_order_type = items[i].category_default_order_type;
+                    break;
+                }
+            }
+            let auto_order_type_row_class = '';
+            if (category_default_order_type == '1') {
+                auto_order_type_row_class = 'dine_in_button';
+            } else if (category_default_order_type == '2') {
+                auto_order_type_row_class = 'take_away_button';
+            } else if (category_default_order_type == '3') {
+                auto_order_type_row_class = 'delivery_button';
+            }
+            if (auto_order_type_row_class && $("." + auto_order_type_row_class).length > 0) {
+                $("." + auto_order_type_row_class).click();
+                if (auto_order_type_row_class != "delivery_button") {
+                    $("#item_" + item_id).click();
+                }
+                return false;
+            }
+
             $("#last_click_item_id").val(item_id);
             $("#order_type_modal").addClass("active");
             $(".pos__modal__overlay").fadeIn(200);
@@ -6287,6 +6332,7 @@
         displayOrderList();
 
         $(".order_table_holder .order_holder").empty();
+        resetOrderTypeSelectionIfCartEmpty();
         clearFooterCartCalculation();
         $(".single_table_div[data-table-checked=checked]").attr(
             "data-table-checked",
@@ -6319,6 +6365,7 @@
         displayOrderList();
 
         $(".order_table_holder .order_holder").empty();
+        resetOrderTypeSelectionIfCartEmpty();
         clearFooterCartCalculation();
         $(".single_table_div[data-table-checked=checked]").attr(
             "data-table-checked",
@@ -15863,6 +15910,7 @@
                             $(this).remove();
                             setTimeout(function () {
                                 do_addition_of_item_and_modifiers_price();
+                                resetOrderTypeSelectionIfCartEmpty();
                             }, 100);
                         });
                 };

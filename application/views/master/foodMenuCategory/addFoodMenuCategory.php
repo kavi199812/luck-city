@@ -34,6 +34,29 @@
                                     value="<?php echo set_value('description'); ?>">
                             </div>
                         </div>
+                        <div class="col-sm-12 mb-2 col-md-6">
+
+                            <div class="form-group">
+                                <label><?php echo lang('kot_order_type'); ?></label>
+                                <select tabindex="3" name="kot_order_type" class="form-control">
+                                    <option value="both" <?php echo set_select('kot_order_type', 'both', TRUE); ?>><?php echo lang('kot_order_type_both'); ?></option>
+                                    <option value="dine_in" <?php echo set_select('kot_order_type', 'dine_in'); ?>><?php echo lang('kot_order_type_dine_in'); ?></option>
+                                    <option value="takeaway" <?php echo set_select('kot_order_type', 'takeaway'); ?>><?php echo lang('kot_order_type_takeaway'); ?></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 mb-2 col-md-6">
+
+                            <div class="form-group">
+                                <label><?php echo lang('category_default_order_type'); ?></label>
+                                <select tabindex="4" name="default_order_type" class="form-control">
+                                    <option value="" <?php echo set_select('default_order_type', '', TRUE); ?>><?php echo lang('None'); ?></option>
+                                    <option value="1" <?php echo set_select('default_order_type', '1'); ?>><?php echo lang('dine'); ?></option>
+                                    <option value="2" <?php echo set_select('default_order_type', '2'); ?>><?php echo lang('take_away'); ?></option>
+                                    <option value="3" <?php echo set_select('default_order_type', '3'); ?>><?php echo lang('delivery'); ?></option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- /.box-body -->

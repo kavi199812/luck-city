@@ -35,6 +35,31 @@
                                     value="<?php echo escape_output($category_information->description) ?>">
                             </div>
                         </div>
+                        <div class="col-sm-12 mb-2 col-md-6">
+
+                            <div class="form-group">
+                                <label><?php echo lang('kot_order_type'); ?></label>
+                                <?php $current_kot_order_type = isset($category_information->kot_order_type) ? $category_information->kot_order_type : 'both'; ?>
+                                <select tabindex="3" name="kot_order_type" class="form-control">
+                                    <option value="both" <?php echo $current_kot_order_type == 'both' ? 'selected' : ''; ?>><?php echo lang('kot_order_type_both'); ?></option>
+                                    <option value="dine_in" <?php echo $current_kot_order_type == 'dine_in' ? 'selected' : ''; ?>><?php echo lang('kot_order_type_dine_in'); ?></option>
+                                    <option value="takeaway" <?php echo $current_kot_order_type == 'takeaway' ? 'selected' : ''; ?>><?php echo lang('kot_order_type_takeaway'); ?></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 mb-2 col-md-6">
+
+                            <div class="form-group">
+                                <label><?php echo lang('category_default_order_type'); ?></label>
+                                <?php $current_default_order_type = isset($category_information->default_order_type) ? $category_information->default_order_type : ''; ?>
+                                <select tabindex="4" name="default_order_type" class="form-control">
+                                    <option value="" <?php echo $current_default_order_type == '' ? 'selected' : ''; ?>><?php echo lang('None'); ?></option>
+                                    <option value="1" <?php echo $current_default_order_type == '1' ? 'selected' : ''; ?>><?php echo lang('dine'); ?></option>
+                                    <option value="2" <?php echo $current_default_order_type == '2' ? 'selected' : ''; ?>><?php echo lang('take_away'); ?></option>
+                                    <option value="3" <?php echo $current_default_order_type == '3' ? 'selected' : ''; ?>><?php echo lang('delivery'); ?></option>
+                                </select>
+                            </div>
+                        </div>
 
                     </div>
                 </div>

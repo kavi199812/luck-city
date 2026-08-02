@@ -1065,6 +1065,7 @@ class Common_model extends CI_Model {
         $this->db->select("tbl_kitchen_sales_details.menu_name,tbl_kitchen_sales_details.qty,tbl_kitchen_sales_details.tmp_qty,tbl_kitchen_sales_details.menu_combo_items,tbl_kitchen_sales_details.menu_note,tbl_kitchen_sales_details.id as sales_details_id,tbl_kitchen_sales_details.is_print");
         $this->db->from('tbl_kitchen_sales_details');
         $this->db->join('tbl_food_menus', 'tbl_food_menus.id = tbl_kitchen_sales_details.food_menu_id', 'left');
+        $this->db->join('tbl_food_menu_categories', 'tbl_food_menu_categories.id = tbl_food_menus.category_id', 'left');
         $this->db->join('tbl_kitchen_categories', 'tbl_kitchen_categories.cat_id = tbl_food_menus.category_id', 'left');
         $this->db->join('tbl_kitchens', 'tbl_kitchens.id = tbl_kitchen_categories.kitchen_id', 'left');
         $this->db->join('tbl_printers', 'tbl_printers.id = tbl_kitchens.printer_id', 'left');
@@ -1072,21 +1073,25 @@ class Common_model extends CI_Model {
         $this->db->where("tbl_printers.id", $printer_id);
         $this->db->where("tbl_kitchen_sales_details.is_print", 1);
         $this->db->where("tbl_kitchen_categories.del_status", "Live");
+        $this->db->where_in("tbl_food_menu_categories.kot_order_type", array('both', 'dine_in'));
         $this->db->order_by('tbl_kitchen_sales_details.id', 'ASC');
         $this->db->group_by('tbl_kitchen_sales_details.id');
         $data =  $this->db->get()->result();
         return $data;
     }
-    public function getAllKitchenItemsAutoTakeaway($sales_id){
+    public function getAllKitchenItemsAutoTakeaway($sales_id,$printer_id){
         $this->db->select("tbl_kitchen_sales_details.menu_name,tbl_kitchen_sales_details.qty,tbl_kitchen_sales_details.tmp_qty,tbl_kitchen_sales_details.menu_combo_items,tbl_kitchen_sales_details.menu_note,tbl_kitchen_sales_details.id as sales_details_id,tbl_kitchen_sales_details.is_print");
         $this->db->from('tbl_kitchen_sales_details');
         $this->db->join('tbl_food_menus', 'tbl_food_menus.id = tbl_kitchen_sales_details.food_menu_id', 'left');
+        $this->db->join('tbl_food_menu_categories', 'tbl_food_menu_categories.id = tbl_food_menus.category_id', 'left');
         $this->db->join('tbl_kitchen_categories', 'tbl_kitchen_categories.cat_id = tbl_food_menus.category_id', 'left');
         $this->db->join('tbl_kitchens', 'tbl_kitchens.id = tbl_kitchen_categories.kitchen_id', 'left');
         $this->db->join('tbl_printers', 'tbl_printers.id = tbl_kitchens.printer_id', 'left');
         $this->db->where("sales_id", $sales_id);
+        $this->db->where("tbl_printers.id", $printer_id);
         $this->db->where("tbl_kitchen_sales_details.is_print", 1);
         $this->db->where("tbl_kitchen_categories.del_status", "Live");
+        $this->db->where_in("tbl_food_menu_categories.kot_order_type", array('both', 'takeaway'));
         $this->db->order_by('tbl_kitchen_sales_details.id', 'ASC');
         $this->db->group_by('tbl_kitchen_sales_details.id');
         $data =  $this->db->get()->result();

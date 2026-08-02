@@ -114,6 +114,10 @@ class FoodMenuCategory extends Cl_Controller {
                 $fmc_info = array();
                 $fmc_info['category_name'] = htmlspecialcharscustom($this->input->post($this->security->xss_clean('category_name')));
                 $fmc_info['description'] =htmlspecialcharscustom($this->input->post($this->security->xss_clean('description')));
+                $kot_order_type = htmlspecialcharscustom($this->input->post($this->security->xss_clean('kot_order_type')));
+                $fmc_info['kot_order_type'] = in_array($kot_order_type, array('both', 'dine_in', 'takeaway')) ? $kot_order_type : 'both';
+                $default_order_type = htmlspecialcharscustom($this->input->post($this->security->xss_clean('default_order_type')));
+                $fmc_info['default_order_type'] = in_array($default_order_type, array('1', '2', '3')) ? $default_order_type : '';
                 $fmc_info['user_id'] = $this->session->userdata('user_id');
                 $fmc_info['company_id'] = $this->session->userdata('company_id');
                 if ($id == "") {

@@ -6,14 +6,18 @@ $(function () {
         $.ajax({
             url: base_url + "Sale/registerDetailCalculationToShowAjax",
             method: "POST",
+            cache: false,
             data: {
                 csrf_name_: csrf_value_,
             },
             success: function (response) {
-                response = JSON.parse(response);
+                try { response = JSON.parse(response); } catch(e) { console.error('Register parse error:', e, response); return; }
 
-                $(".html_content").html(response.html_content_for_div);
+                $("#register_modal .html_content").html(response.html_content_for_div);
 
+                if ($.fn.DataTable.isDataTable('#datatable')) {
+                    $('#datatable').DataTable().destroy();
+                }
                 $(`#datatable`).DataTable({
                     'autoWidth'   : false,
                     'ordering'    : false,
@@ -86,17 +90,21 @@ $(function () {
             $.ajax({
                 url: base_url + "Sale/registerDetailCalculationToShowAjax",
                 method: "POST",
+                cache: false,
                 data: {
                     csrf_name_: csrf_value_,
                 },
                 success: function (response) {
-                    response = JSON.parse(response);
+                    try { response = JSON.parse(response); } catch(e) { console.error('Register parse error:', e, response); return; }
 
                     $("#register_modal").addClass("active");
                     $(".pos__modal__overlay").fadeIn(200);
                     $("#opening_register_time").html(response.opening_date_time);
-                    $(".html_content").html(response.html_content_for_div);
+                    $("#register_modal .html_content").html(response.html_content_for_div);
 
+                    if ($.fn.DataTable.isDataTable('#datatable')) {
+                        $('#datatable').DataTable().destroy();
+                    }
                     $(`#datatable`).DataTable({
                         'autoWidth'   : false,
                         'ordering'    : false,

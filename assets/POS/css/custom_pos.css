@@ -330,4 +330,25 @@
     background-color: #e0f2fe !important;
     border: 2px solid #0284c7 !important;
     box-shadow: 0 0 6px rgba(2, 132, 199, 0.3) !important;
-}
+}
+
+/* Speed up ALL POS Modal Popup Animations safely using animation-duration only */
+.modal.active,
+.cus_pos_modal.active,
+.cus_pos_modal_feature_sale_modal.active,
+.cus_pos_modal_self_online_sale_modal.active {
+    animation-duration: 0.15s !important;
+    -webkit-animation-duration: 0.15s !important;
+}
+
+.modal.inActive,
+.cus_pos_modal.inActive,
+.cus_pos_modal_feature_sale_modal.inActive,
+.cus_pos_modal_self_online_sale_modal.inActive {
+    animation-duration: 0.15s !important;
+    -webkit-animation-duration: 0.15s !important;
+}
+
+
+
+

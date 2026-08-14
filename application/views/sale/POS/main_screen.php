@@ -1003,6 +1003,82 @@ if ($wl) {
             <!-- End Mobile Mode Options -->
         </div>
         <div id="main_part">
+
+                <!-- Dual-Mode Panel: QTY Numpad + Calculator — LEFT SIDE -->
+                <div id="pos_numpad_panel">
+                    <!-- Tab Switcher -->
+                    <div class="panel_tab_bar">
+                        <button type="button" class="panel_tab active" id="tab_qty"><i class="fas fa-sort-numeric-up"></i> QTY</button>
+                        <button type="button" class="panel_tab" id="tab_calc"><i class="fas fa-calculator"></i> Calc</button>
+                    </div>
+
+                    <!-- ── QTY Numpad Mode ── -->
+                    <div id="qty_numpad_mode">
+                        <div class="numpad_header_box">
+                            <div class="numpad_target_title" id="numpad_target_name">Select Item</div>
+                            <div class="numpad_val_display" id="numpad_val_display">0</div>
+                        </div>
+                        <div class="numpad_grid">
+                            <button type="button" class="numpad_btn numpad_key" data-val="7">7</button>
+                            <button type="button" class="numpad_btn numpad_key" data-val="8">8</button>
+                            <button type="button" class="numpad_btn numpad_key" data-val="9">9</button>
+                            
+                            <button type="button" class="numpad_btn numpad_key" data-val="4">4</button>
+                            <button type="button" class="numpad_btn numpad_key" data-val="5">5</button>
+                            <button type="button" class="numpad_btn numpad_key" data-val="6">6</button>
+                            
+                            <button type="button" class="numpad_btn numpad_key" data-val="1">1</button>
+                            <button type="button" class="numpad_btn numpad_key" data-val="2">2</button>
+                            <button type="button" class="numpad_btn numpad_key" data-val="3">3</button>
+                            
+                            <button type="button" class="numpad_btn numpad_btn_action numpad_btn_minus" id="numpad_minus_btn"><i class="fas fa-minus"></i></button>
+                            <button type="button" class="numpad_btn numpad_key" data-val="0">0</button>
+                            <button type="button" class="numpad_btn numpad_btn_action numpad_btn_plus" id="numpad_plus_btn"><i class="fas fa-plus"></i></button>
+                            
+                            <button type="button" class="numpad_btn numpad_btn_action numpad_backspace" id="numpad_backspace_btn"><i class="fas fa-backspace"></i></button>
+                            <button type="button" class="numpad_btn numpad_btn_clear" id="numpad_clear_btn">C</button>
+                            <button type="button" class="numpad_btn numpad_btn_action" id="numpad_dot_btn">.</button>
+                            
+                            <button type="button" class="numpad_btn numpad_btn_enter" id="numpad_enter_btn">OK</button>
+                        </div>
+                    </div>
+
+                    <!-- ── Calculator Mode ── -->
+                    <div id="calc_mode" style="display:none;">
+                        <div class="calc_display_box">
+                            <div class="calc_expression" id="calc_expression">&nbsp;</div>
+                            <div class="calc_result" id="calc_result">0</div>
+                        </div>
+                        <div class="calc_grid">
+                            <!-- Row 1 -->
+                            <button type="button" class="calc_btn calc_btn_fn" id="calc_clear">AC</button>
+                            <button type="button" class="calc_btn calc_btn_fn" id="calc_sign">+/−</button>
+                            <button type="button" class="calc_btn calc_btn_fn" id="calc_pct">%</button>
+                            <button type="button" class="calc_btn calc_btn_op" data-op="÷">÷</button>
+                            <!-- Row 2 -->
+                            <button type="button" class="calc_btn calc_btn_num" data-num="7">7</button>
+                            <button type="button" class="calc_btn calc_btn_num" data-num="8">8</button>
+                            <button type="button" class="calc_btn calc_btn_num" data-num="9">9</button>
+                            <button type="button" class="calc_btn calc_btn_op" data-op="×">×</button>
+                            <!-- Row 3 -->
+                            <button type="button" class="calc_btn calc_btn_num" data-num="4">4</button>
+                            <button type="button" class="calc_btn calc_btn_num" data-num="5">5</button>
+                            <button type="button" class="calc_btn calc_btn_num" data-num="6">6</button>
+                            <button type="button" class="calc_btn calc_btn_op" data-op="−">−</button>
+                            <!-- Row 4 -->
+                            <button type="button" class="calc_btn calc_btn_num" data-num="1">1</button>
+                            <button type="button" class="calc_btn calc_btn_num" data-num="2">2</button>
+                            <button type="button" class="calc_btn calc_btn_num" data-num="3">3</button>
+                            <button type="button" class="calc_btn calc_btn_op" data-op="+">+</button>
+                            <!-- Row 5 -->
+                            <button type="button" class="calc_btn calc_btn_num calc_btn_zero" data-num="0">0</button>
+                            <button type="button" class="calc_btn calc_btn_num" data-num=".">.</button>
+                            <button type="button" class="calc_btn calc_btn_bksp" id="calc_bksp"><i class="fas fa-backspace"></i></button>
+                            <button type="button" class="calc_btn calc_btn_eq" id="calc_eq">=</button>
+                        </div>
+                    </div>
+                </div>
+
             <div class="left_item <?php echo escape_output($is_self_order_class) ? 'self_order_mode' : '' ?>">
                 <div class="main_left  <?php echo escape_output($is_self_order_class) ?>">
                     <div class="holder">
@@ -1434,37 +1510,6 @@ if ($wl) {
                             <?php echo ($menu_to_show); ?>
                         </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Permanent Numeric Keypad Panel -->
-                <div id="pos_numpad_panel">
-                    <div class="numpad_header_box">
-                        <div class="numpad_target_title" id="numpad_target_name">Select Item</div>
-                        <div class="numpad_val_display" id="numpad_val_display">0</div>
-                    </div>
-                    <div class="numpad_grid">
-                        <button type="button" class="numpad_btn numpad_key" data-val="7">7</button>
-                        <button type="button" class="numpad_btn numpad_key" data-val="8">8</button>
-                        <button type="button" class="numpad_btn numpad_key" data-val="9">9</button>
-                        
-                        <button type="button" class="numpad_btn numpad_key" data-val="4">4</button>
-                        <button type="button" class="numpad_btn numpad_key" data-val="5">5</button>
-                        <button type="button" class="numpad_btn numpad_key" data-val="6">6</button>
-                        
-                        <button type="button" class="numpad_btn numpad_key" data-val="1">1</button>
-                        <button type="button" class="numpad_btn numpad_key" data-val="2">2</button>
-                        <button type="button" class="numpad_btn numpad_key" data-val="3">3</button>
-                        
-                        <button type="button" class="numpad_btn numpad_btn_action numpad_btn_minus" id="numpad_minus_btn"><i class="fas fa-minus"></i></button>
-                        <button type="button" class="numpad_btn numpad_key" data-val="0">0</button>
-                        <button type="button" class="numpad_btn numpad_btn_action numpad_btn_plus" id="numpad_plus_btn"><i class="fas fa-plus"></i></button>
-                        
-                        <button type="button" class="numpad_btn numpad_btn_action numpad_backspace" id="numpad_backspace_btn"><i class="fas fa-backspace"></i></button>
-                        <button type="button" class="numpad_btn numpad_btn_clear" id="numpad_clear_btn">C</button>
-                        <button type="button" class="numpad_btn numpad_btn_action" id="numpad_dot_btn">.</button>
-                        
-                        <button type="button" class="numpad_btn numpad_btn_enter" id="numpad_enter_btn">OK</button>
                     </div>
                 </div>
             </div>
@@ -6143,6 +6188,173 @@ if ($wl) {
                     e.preventDefault();
                     $('#numpad_minus_btn').trigger('click');
                 }
+            });
+
+            /* ══════════════════════════════════════════════════════════
+             *  DUAL-MODE PANEL — Tab Switching (QTY ↔ Calculator)
+             * ══════════════════════════════════════════════════════════ */
+            $(document).on('click', '#tab_qty', function() {
+                $('#tab_qty').addClass('active');
+                $('#tab_calc').removeClass('active');
+                $('#qty_numpad_mode').show();
+                $('#calc_mode').hide();
+            });
+
+            $(document).on('click', '#tab_calc', function() {
+                $('#tab_calc').addClass('active');
+                $('#tab_qty').removeClass('active');
+                $('#calc_mode').show();
+                $('#qty_numpad_mode').hide();
+            });
+
+            /* ══════════════════════════════════════════════════════════
+             *  STANDALONE CALCULATOR LOGIC
+             * ══════════════════════════════════════════════════════════ */
+            var calc = {
+                current:     '',      // string being built right now
+                pending:     null,    // stored left-operand (number)
+                operator:    null,    // pending operator symbol
+                justEvaled:  false    // flag: last action was = or operator result
+            };
+
+            function calcUpdateDisplay() {
+                var display = calc.current === '' ? '0' : calc.current;
+                // Limit display length
+                if (display.length > 12) display = parseFloat(display).toExponential(4);
+                $('#calc_result').text(display);
+            }
+
+            function calcUpdateExpression(txt) {
+                $('#calc_expression').html(txt || '&nbsp;');
+            }
+
+            function calcHighlightOp(op) {
+                $('.calc_btn_op').removeClass('active_op');
+                if (op) {
+                    $('.calc_btn_op[data-op="' + op + '"]').addClass('active_op');
+                }
+            }
+
+            function calcDoOperation() {
+                if (calc.operator === null || calc.pending === null) return;
+                var a = calc.pending;
+                var b = parseFloat(calc.current === '' ? '0' : calc.current);
+                var result;
+                switch (calc.operator) {
+                    case '+': result = a + b; break;
+                    case '−': result = a - b; break;
+                    case '×': result = a * b; break;
+                    case '÷': result = b !== 0 ? a / b : 0; break;
+                    default:  result = b;
+                }
+                // Round floating point noise
+                result = parseFloat(result.toPrecision(12));
+                return result;
+            }
+
+            // Digit / dot press
+            $(document).on('click', '#calc_mode .calc_btn_num', function() {
+                var digit = $(this).attr('data-num');
+
+                if (calc.justEvaled) {
+                    // After = was pressed, start fresh number
+                    calc.current = '';
+                    calc.justEvaled = false;
+                }
+
+                if (digit === '.') {
+                    if (calc.current.indexOf('.') !== -1) return; // already has dot
+                    if (calc.current === '') calc.current = '0';
+                } else {
+                    if (calc.current === '0' && digit !== '.') {
+                        calc.current = digit; // replace leading zero
+                        calcUpdateDisplay(); return;
+                    }
+                }
+
+                if (calc.current.length >= 14) return;
+                calc.current += digit;
+                calcUpdateDisplay();
+            });
+
+            // Operator press (+, −, ×, ÷)
+            $(document).on('click', '#calc_mode .calc_btn_op', function() {
+                var op = $(this).attr('data-op');
+
+                if (calc.current !== '' && calc.operator !== null && !calc.justEvaled) {
+                    // Chain: evaluate pending first
+                    var result = calcDoOperation();
+                    calcUpdateExpression(calc.pending + ' ' + calc.operator + ' ' + calc.current + ' =');
+                    calc.pending = result;
+                    calc.current = String(result);
+                    calcUpdateDisplay();
+                } else if (calc.current !== '' && calc.operator === null) {
+                    calc.pending = parseFloat(calc.current);
+                } else if (calc.current === '' && calc.pending !== null) {
+                    // Just change operator
+                }
+
+                calc.operator   = op;
+                calc.justEvaled = false;
+                calcUpdateExpression(calc.pending + ' ' + op);
+                calcHighlightOp(op);
+                calc.current = '';
+            });
+
+            // Equals press
+            $(document).on('click', '#calc_eq', function() {
+                if (calc.operator === null || calc.pending === null) return;
+                var expr = calc.pending + ' ' + calc.operator + ' ' + (calc.current || '0');
+                var result = calcDoOperation();
+                calcUpdateExpression(expr + ' =');
+                calc.current    = String(result);
+                calc.pending    = null;
+                calc.operator   = null;
+                calc.justEvaled = true;
+                calcHighlightOp(null);
+                calcUpdateDisplay();
+            });
+
+            // AC — all clear
+            $(document).on('click', '#calc_clear', function() {
+                calc.current    = '';
+                calc.pending    = null;
+                calc.operator   = null;
+                calc.justEvaled = false;
+                calcHighlightOp(null);
+                calcUpdateDisplay();
+                calcUpdateExpression('');
+            });
+
+            // +/− toggle sign
+            $(document).on('click', '#calc_sign', function() {
+                if (calc.current === '' || calc.current === '0') return;
+                if (calc.current.charAt(0) === '-') {
+                    calc.current = calc.current.slice(1);
+                } else {
+                    calc.current = '-' + calc.current;
+                }
+                calcUpdateDisplay();
+            });
+
+            // % key
+            $(document).on('click', '#calc_pct', function() {
+                if (calc.current === '') return;
+                var val = parseFloat(calc.current) / 100;
+                calc.current = String(parseFloat(val.toPrecision(12)));
+                calcUpdateDisplay();
+            });
+
+            // Backspace in calculator
+            $(document).on('click', '#calc_bksp', function() {
+                if (calc.justEvaled) {
+                    calc.current = '';
+                    calc.justEvaled = false;
+                    calcUpdateDisplay();
+                    return;
+                }
+                calc.current = calc.current.slice(0, -1);
+                calcUpdateDisplay();
             });
 
         });

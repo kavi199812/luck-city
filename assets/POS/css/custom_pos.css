@@ -180,43 +180,41 @@
 /* ==========================================================================
    Permanent Numeric Keypad Panel (Inside main_right)
    ========================================================================== */
+/* .main_right is now purely the food items area - no numpad inside */
 .main_right {
     height: 100% !important;
     overflow: hidden !important;
 }
 
+/* main_right_inner_flex: single child (product_section_left) — keep as row */
 #main_right_inner_flex {
     display: flex !important;
     flex-direction: row !important;
     width: 100% !important;
     height: 100% !important;
-    gap: 6px;
-    align-items: stretch;
 }
 
 #product_section_left {
     flex: 1 1 auto !important;
     min-width: 0 !important;
-    height: 100% !important;
-    overflow: hidden !important;
+    overflow: auto !important;
 }
 
+/* pos_numpad_panel is now a LEFT-side direct child of #main_part.
+   Width/height are controlled by the layout override below.
+   Only keep visual styling here. */
 #pos_numpad_panel {
-    width: 175px !important;
-    min-width: 175px !important;
-    max-width: 175px !important;
-    flex-shrink: 0 !important;
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    padding: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     user-select: none;
     z-index: 5;
-    height: calc(100vh - 120px) !important;
-    max-height: 620px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .numpad_header_box {
@@ -350,5 +348,234 @@
 }
 
 
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT: [Numpad LEFT] | [Cart MIDDLE] | [Food Menu RIGHT]
+   ═══════════════════════════════════════════════════════════ */
 
+/* Force single-row layout, no wrapping */
+#main_part {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+}
+
+/* pos_numpad_panel: LEFT side - fixed width */
+#main_part > #pos_numpad_panel {
+    order: 1 !important;
+    width: 185px !important;
+    min-width: 185px !important;
+    max-width: 185px !important;
+    flex-shrink: 0 !important;
+    height: calc(100vh - 110px) !important;
+    max-height: none !important;
+}
+
+/* left_item (cart panel): MIDDLE - fixed ~38% */
+#main_part > .left_item {
+    order: 2 !important;
+    width: 36% !important;
+    min-width: 300px !important;
+    flex-shrink: 0 !important;
+}
+
+/* main_right (food items): RIGHT - fill remaining space */
+#main_part > .main_right {
+    order: 3 !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+}
+
+/* Hide the Running Orders left sidebar (main_left inside left_item) */
+#main_part .left_item .main_left {
+    display: none !important;
+}
+
+/* Expand order table panel to fill full width of left_item */
+#main_part .left_item .main_middle {
+    width: 100% !important;
+}
+
+
+
+
+/* ═══════════════════════════════════════════════════════════
+   DUAL-MODE PANEL TAB BAR
+   ═══════════════════════════════════════════════════════════ */
+
+.panel_tab_bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.panel_tab {
+    flex: 1;
+    padding: 6px 4px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+}
+
+.panel_tab:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.panel_tab.active {
+    background: #0284c7;
+    border-color: #0369a1;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STANDALONE CALCULATOR STYLES
+   ═══════════════════════════════════════════════════════════ */
+
+#calc_mode {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Calculator Display */
+.calc_display_box {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 10px 12px 8px;
+    min-height: 62px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.calc_expression {
+    font-size: 11px;
+    color: #94a3b8;
+    min-height: 14px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.calc_result {
+    font-size: 30px;
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    text-align: right;
+}
+
+/* Calculator Grid - 4 columns */
+.calc_grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+/* Base calculator button */
+.calc_btn {
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: 600;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.08s ease;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+    user-select: none;
+    padding: 0;
+}
+
+.calc_btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+}
+
+/* Number buttons */
+.calc_btn_num {
+    background: #334155;
+    color: #f8fafc;
+}
+.calc_btn_num:hover {
+    background: #475569;
+}
+
+/* 0 spans 2 columns */
+.calc_btn_zero {
+    grid-column: span 2;
+}
+
+/* Function buttons (AC, +/-, %) */
+.calc_btn_fn {
+    background: #64748b;
+    color: #f8fafc;
+    font-size: 14px;
+}
+.calc_btn_fn:hover {
+    background: #475569;
+}
+
+/* Operator buttons (/, x, -, +) */
+.calc_btn_op {
+    background: #f97316;
+    color: #ffffff;
+    font-size: 20px;
+    box-shadow: 0 3px 0 #c2410c;
+}
+.calc_btn_op:hover {
+    background: #ea580c;
+}
+.calc_btn_op.active_op {
+    background: #ffffff;
+    color: #f97316;
+    border: 2px solid #f97316;
+}
+
+/* Backspace */
+.calc_btn_bksp {
+    background: #dc2626;
+    color: #ffffff;
+    box-shadow: 0 3px 0 #991b1b;
+    font-size: 15px;
+}
+.calc_btn_bksp:hover {
+    background: #b91c1c;
+}
+
+/* Equals button */
+.calc_btn_eq {
+    background: #16a34a;
+    color: #ffffff;
+    box-shadow: 0 3px 0 #15803d;
+    font-size: 22px;
+    font-weight: 800;
+}
+.calc_btn_eq:hover {
+    background: #15803d;
+}
 

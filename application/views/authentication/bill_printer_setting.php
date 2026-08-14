@@ -100,6 +100,13 @@ $base_color = '';
                                            name="print_server_url_bill" class="form-control"
                                            placeholder="<?php echo lang('print_server_url_exm'); ?>"
                                            value="<?= escape_output($outlet_information->print_server_url_bill); ?>">
+                                    <button type="button"
+                                            id="auto_detect_ip_btn_bill"
+                                            class="btn bg-blue-btn mt-1 auto-detect-ip-btn"
+                                            data-target-input="print_server_url_bill"
+                                            style="width:100%;">
+                                        <i class="fa fa-search" style="margin-right:5px;"></i> Auto Detect IP
+                                    </button>
                                 </div>
                                 <?php if (form_error('print_server_url_bill')) { ?>
                                     <div class="callout callout-danger my-2">
@@ -190,4 +197,60 @@ $base_color = '';
         </div>
     </div>
 
+<script>
+/* =========================================================
+ * IPv4 Auto-Detection - Bill Printer Settings Page
+ * ========================================================= */
+(function () {
+    function detectIP(callback) {
+        fetch('http://127.0.0.1/print_server/get_ip.php')
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (d && d.status === 'success' && d.ip) { callback(d.ip); }
+                else { throw new Error('bad response'); }
+            })
+            .catch(function () {
+                fetch('http://localhost/print_server/get_ip.php')
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        if (d && d.status === 'success' && d.ip) { callback(d.ip); }
+                        else { throw new Error('bad response'); }
+                    })
+                    .catch(function () { callback(null); });
+            });
+    }
+
+    // Button click - Manual detect
+    $(document).on('click', '.auto-detect-ip-btn', function () {
+        var btn = this;
+        var inputEl = document.getElementById(btn.getAttribute('data-target-input'));
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin" style="margin-right:5px;"></i> Detecting...';
+
+        detectIP(function (ip) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-search" style="margin-right:5px;"></i> Auto Detect IP';
+            if (ip) {
+                inputEl.value = ip;
+                alert('IP Address successfully detected: ' + ip);
+            } else {
+                alert('Could not detect local IP. Make sure print_server is running on your local server.');
+            }
+        });
+    });
+
+    // Auto-fill if field is empty on page load
+    $(document).ready(function () {
+        var btn = document.querySelector('.auto-detect-ip-btn');
+        if (btn) {
+            var inputEl = document.getElementById(btn.getAttribute('data-target-input'));
+            if (inputEl && !inputEl.value.trim()) {
+                detectIP(function (ip) {
+                    if (ip) { inputEl.value = ip; }
+                });
+            }
+        }
+    });
+}());
+</script>
 </section>

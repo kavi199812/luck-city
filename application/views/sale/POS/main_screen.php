@@ -6147,6 +6147,58 @@ if ($wl) {
 
         });
     </script>
+
+    <script>
+    /* =========================================================
+     * IPv4 Auto-Detection on POS Load
+     * POS screen load වී 3s කට පසු local IP fetch කර DB update කරයි
+     * ========================================================= */
+    $(document).ready(function () {
+        setTimeout(function () {
+            fetchAndSendPrinterIP();
+        }, 3000);
+
+        function fetchAndSendPrinterIP() {
+            fetch('http://127.0.0.1/print_server/get_ip.php')
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data && data.status === 'success' && data.ip) {
+                        sendIpToBackend(data.ip);
+                    }
+                })
+                .catch(function () {
+                    // 127.0.0.1 fail වුවහොත් localhost භාවිතයෙන් නැවත උත්සාහ කරයි
+                    fetch('http://localhost/print_server/get_ip.php')
+                        .then(function (res) { return res.json(); })
+                        .then(function (data) {
+                            if (data && data.status === 'success' && data.ip) {
+                                sendIpToBackend(data.ip);
+                            }
+                        })
+                        .catch(function () {
+                            console.log('IPv4 Auto-Detect: Print server unreachable.');
+                        });
+                });
+        }
+
+        function sendIpToBackend(ip) {
+            $.ajax({
+                url: '<?php echo base_url(); ?>Authentication/auto_update_printer_ip',
+                method: 'POST',
+                dataType: 'json',
+                data: { new_ip: ip },
+                success: function (res) {
+                    if (res && res.status === 'updated') {
+                        console.log('IPv4 Auto-Detect: Printer IP updated to ' + res.ip);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log('IPv4 Auto-Detect: Backend update error - ' + error);
+                }
+            });
+        }
+    });
+    </script>
 </body>
 
 </html>

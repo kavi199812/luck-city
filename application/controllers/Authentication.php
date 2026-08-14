@@ -2581,6 +2581,50 @@ class Authentication extends Cl_Controller {
         $this->load->helper('download');
         force_download($file_name, $backup);
     }
+
+    // -----------------------------------------------------------------------
+    // IPv4 Auto-Detection: POS screen එකෙන් detect කළ IP database update
+    // -----------------------------------------------------------------------
+    public function auto_update_printer_ip() {
+        header('Content-Type: application/json');
+        $new_ip = $this->input->post('new_ip');
+        if ($new_ip) {
+            // Basic IPv4 validation
+            if (!filter_var($new_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                echo json_encode(['status' => 'invalid_ip']);
+                return;
+            }
+            $company_id = $this->session->userdata('company_id');
+            if ($company_id) {
+                $company = $this->Common_model->getDataById($company_id, "tbl_companies");
+                if ($company) {
+                    $update_data = array();
+                    $changed = false;
+
+                    if (isset($company->print_server_url_bill) && $company->print_server_url_bill !== $new_ip) {
+                        $update_data['print_server_url_bill'] = $new_ip;
+                        $changed = true;
+                    }
+                    if (isset($company->print_server_url_kot) && $company->print_server_url_kot !== $new_ip) {
+                        $update_data['print_server_url_kot'] = $new_ip;
+                        $changed = true;
+                    }
+                    if (isset($company->print_server_url_invoice) && $company->print_server_url_invoice !== $new_ip) {
+                        $update_data['print_server_url_invoice'] = $new_ip;
+                        $changed = true;
+                    }
+
+                    if ($changed) {
+                        $this->Common_model->updateInformation($update_data, $company_id, "tbl_companies");
+                        $this->session->set_userdata($update_data);
+                        echo json_encode(['status' => 'updated', 'ip' => $new_ip]);
+                        return;
+                    }
+                }
+            }
+        }
+        echo json_encode(['status' => 'no_change']);
+    }
 }
 
 

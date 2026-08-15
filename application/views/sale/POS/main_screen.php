@@ -37,7 +37,15 @@ $javascript_obects = "";
 
 function cmp($a, $b)
 {
-    return strcmp($a->category_id, $b->category_id);
+    if ($a->category_id != $b->category_id) {
+        return ((int)$a->category_id < (int)$b->category_id) ? -1 : 1;
+    }
+    $a_order = isset($a->order_by) ? (int)$a->order_by : 0;
+    $b_order = isset($b->order_by) ? (int)$b->order_by : 0;
+    if ($a_order != $b_order) {
+        return ($a_order < $b_order) ? -1 : 1;
+    }
+    return strcasecmp($a->name, $b->name);
 }
 
 if (isset($food_menus) && $food_menus):

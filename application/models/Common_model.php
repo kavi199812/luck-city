@@ -1266,6 +1266,25 @@ class Common_model extends CI_Model {
         $this->db->order_by('order_by',"ASC");
         return $this->db->get()->result();
     }
+
+    /**
+     * get Food Menus for POS sorting
+     * @access public
+     * @param int $company_id
+     * @param int $category_id
+     * @return object
+     */
+    public function getFoodMenusForSorting($company_id, $category_id) {
+        $this->db->select('*');
+        $this->db->from('tbl_food_menus');
+        $this->db->where('company_id', $company_id);
+        $this->db->where('category_id', $category_id);
+        $this->db->where('parent_id', '0');
+        $this->db->where('del_status', 'Live');
+        $this->db->order_by('order_by', 'ASC');
+        $this->db->order_by('name', 'ASC');
+        return $this->db->get()->result();
+    }
     /**
      * check get Data Custom Name
      * @access public

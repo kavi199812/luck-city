@@ -255,7 +255,7 @@ class Sale_model extends CI_Model {
       $outlet_id = $this->session->userdata('outlet_id');
       $getFM = getFMIds($outlet_id);
       $result = $this->db->query("SELECT fm.*,fmc.category_name,fmc.default_order_type as category_default_order_type,fmc.kot_order_type as category_kot_order_type, COUNT(sd.food_menu_id) as item_sold,kitchen_id
-      FROM tbl_food_menus fm  LEFT JOIN (select * from tbl_food_menu_categories where del_status='Live') fmc ON fmc.id = fm.category_id LEFT JOIN (select * from tbl_sales_details where del_status='Live') sd ON sd.food_menu_id = fm.id LEFT JOIN (select kitchen_id,cat_id from tbl_kitchen_categories where del_status='Live') kt_cat ON kt_cat.cat_id = fm.category_id WHERE FIND_IN_SET(fm.id, '$getFM') AND fm.del_status='Live' GROUP BY fm.id order BY name ASC")->result();
+      FROM tbl_food_menus fm  LEFT JOIN (select * from tbl_food_menu_categories where del_status='Live') fmc ON fmc.id = fm.category_id LEFT JOIN (select * from tbl_sales_details where del_status='Live') sd ON sd.food_menu_id = fm.id LEFT JOIN (select kitchen_id,cat_id from tbl_kitchen_categories where del_status='Live') kt_cat ON kt_cat.cat_id = fm.category_id WHERE FIND_IN_SET(fm.id, '$getFM') AND fm.del_status='Live' GROUP BY fm.id order BY fm.order_by ASC, fm.name ASC")->result();
       if($result != false){
         return $result;
       }else{

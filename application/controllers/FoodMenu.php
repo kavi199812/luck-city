@@ -38,6 +38,8 @@ class FoodMenu extends Cl_Controller {
             $function = "assign_modifier";
         }elseif($segment_2=="foodMenuDetails"){
             $function = "view_details";
+        }elseif($segment_2=="sortingForPOS" || $segment_2=="sortingFoodMenu"){
+            $function = "view";
         }elseif($segment_2=="deleteFoodMenu"){
             $function = "delete";
         }else{
@@ -102,6 +104,51 @@ class FoodMenu extends Cl_Controller {
             $data['main_content'] = $this->load->view('master/foodMenu/foodMenus', $data, TRUE);
             $this->load->view('userHome', $data);
         }
+    }
+
+    /**
+     * food Menu sorting for POS
+     * @access public
+     * @return void
+     * @param string
+     */
+    public function sortingForPOS($category_id = '') {
+        $company_id = $this->session->userdata('company_id');
+        $data = array();
+        $data['categories'] = $this->Common_model->getSortingForPOS();
+
+        if (empty($category_id) && !empty($data['categories'])) {
+            $category_id = $data['categories'][0]->id;
+        }
+
+        $data['selected_category_id'] = $category_id;
+        if (!empty($category_id)) {
+            $data['foodMenus'] = $this->Common_model->getFoodMenusForSorting($company_id, $category_id);
+        } else {
+            $data['foodMenus'] = array();
+        }
+
+        $data['main_content'] = $this->load->view('master/foodMenu/ordering_for_pos', $data, TRUE);
+        $this->load->view('userHome', $data);
+    }
+
+    /**
+     * Ajax action to save food menu sorting
+     * @access public
+     * @return JSON
+     */
+    public function sortingFoodMenu() {
+        $menus = $this->input->get('menus');
+        if (!empty($menus) && is_array($menus)) {
+            $i = 1;
+            foreach ($menus as $key => $value) {
+                $data = array();
+                $data['order_by'] = $i;
+                $this->Common_model->updateInformation($data, $menus[$key], "tbl_food_menus");
+                $i++;
+            }
+        }
+        echo json_encode('success');
     }
      /**
      * delete food menu

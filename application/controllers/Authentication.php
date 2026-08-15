@@ -2525,6 +2525,26 @@ class Authentication extends Cl_Controller {
         }
         echo json_encode('success');
     }
+
+    /**
+     * sorting food menu table by ajax
+     * @access public
+     * @return array
+     */
+    public function sortingFoodMenu() {
+        // This variable could not be escaped because this is array content
+        $menus = $this->input->get('menus');
+        $i = 1;
+        if (!empty($menus) && is_array($menus)) {
+            foreach ($menus as $key=>$value){
+                $data = array();
+                $data['order_by'] = $i;
+                $this->Common_model->updateInformation($data,$menus[$key], "tbl_food_menus");
+                $i++;
+            }
+        }
+        echo json_encode('success');
+    }
     /**
      * sorting category table by ajax
      * @access public

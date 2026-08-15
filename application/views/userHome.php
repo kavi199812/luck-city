@@ -437,6 +437,7 @@ $outlet_id = $this->session->userdata('outlet_id');
                                 <li data-access="view-229" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>foodMenuCategory/foodMenuCategories"><?php echo lang('List'); ?> <?php echo lang('food_menu_category'); ?></a></li>
                                 <li data-access="add-234" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>foodMenu/addEditFoodMenu"><?php echo lang('Add'); ?> <?php echo lang('food_menu'); ?></a></li>
                                 <li data-access="view-234" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>foodMenu/foodMenus"><?php echo lang('List'); ?> <?php echo lang('food_menu'); ?></a></li>
+                                <li data-access="view-234" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>foodMenu/sortingForPOS"><?php echo lang('ordering_for_pos'); ?> (<?php echo lang('food_menu'); ?>)</a></li>
                                 <li data-access="add-325" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>PreMadeFood/addEditPreMadeFood"><?php echo lang('Add'); ?> <?php echo lang('premade_food'); ?></a></li>
                                 <li data-access="view-325" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>PreMadeFood/preMadeFoods"><?php echo lang('List'); ?> <?php echo lang('premade_food'); ?></a></li>
                             </ul>
@@ -488,6 +489,12 @@ $outlet_id = $this->session->userdata('outlet_id');
                             <a style="display: ;" href="<?php echo base_url()?>Report/productionVsWasteReport">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                                 <span> Daily Production vs Waste</span>
+                            </a>
+                        </li>
+                        <li data-access="view-234" class="menu_assign_class menu__cidirp_pos_sort" data-menu__cid="irp_pos_sort">
+                            <a style="display: ;" href="<?php echo base_url()?>foodMenu/sortingForPOS">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                                <span> <?php echo lang('ordering_for_pos'); ?></span>
                             </a>
                         </li>
 
@@ -936,6 +943,7 @@ $outlet_id = $this->session->userdata('outlet_id');
                                 <li data-access="view-229" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>foodMenuCategory/foodMenuCategories"><?php echo lang('List'); ?> <?php echo lang('food_menu_category'); ?></a></li>
                                 <li data-access="add-234" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>foodMenu/addEditFoodMenu"><?php echo lang('Add'); ?> <?php echo lang('food_menu'); ?></a></li>
                                 <li data-access="view-234" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>foodMenu/foodMenus"><?php echo lang('List'); ?> <?php echo lang('food_menu'); ?></a></li>
+                                <li data-access="view-234" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>foodMenu/sortingForPOS"><?php echo lang('ordering_for_pos'); ?> (<?php echo lang('food_menu'); ?>)</a></li>
                                 <li data-access="add-325" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>PreMadeFood/addEditPreMadeFood"><?php echo lang('Add'); ?> <?php echo lang('premade_food'); ?></a></li>
                                 <li data-access="view-325" class="menu_assign_class" data-menu__cid="irp_16"><a href="<?php echo base_url()?>PreMadeFood/preMadeFoods"><?php echo lang('List'); ?> <?php echo lang('premade_food'); ?></a></li>
                             </ul>
@@ -987,6 +995,12 @@ $outlet_id = $this->session->userdata('outlet_id');
                             <a style="display: ;" href="<?php echo base_url()?>Report/productionVsWasteReport">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                                 <span> Daily Production vs Waste</span>
+                            </a>
+                        </li>
+                        <li data-access="view-234" class="menu_assign_class menu__cidirp_pos_sort" data-menu__cid="irp_pos_sort">
+                            <a style="display: ;" href="<?php echo base_url()?>foodMenu/sortingForPOS">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                                <span> <?php echo lang('ordering_for_pos'); ?></span>
                             </a>
                         </li>
 

@@ -22,7 +22,9 @@
          <div class="box-wrapper">
             <div class="row my-3">
                         <div class="col-sm-12 col-md-3">
-
+                            <a data-access="view-234" class="btn bg-blue-btn menu_assign_class" href="<?php echo base_url() ?>foodMenu/sortingForPOS">
+                                <i class="m-right fa fa-exchange"></i> <?php echo lang('ordering_for_pos'); ?>
+                            </a>
                         </div>
                         <div class="col-sm-12 col-md-3">
                             <a  data-access="upload_food_menu-234" class="btn bg-blue-btn menu_assign_class"  href="<?php echo base_url() ?>foodMenu/uploadFoodMenu">

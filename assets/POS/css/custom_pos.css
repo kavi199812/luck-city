@@ -578,4 +578,127 @@
 .calc_btn_eq:hover {
     background: #15803d;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   QUICK TABLE STATUS PANEL (below OK button in QTY mode)
+   ═══════════════════════════════════════════════════════════ */
+
+#quick_tables_panel {
+    margin-top: 8px;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 220px;
+}
+
+.quick_tables_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 2px;
+}
+
+#refresh_quick_tables {
+    cursor: pointer;
+    color: #64748b;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+#refresh_quick_tables:hover {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+}
+
+.quick_tables_list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    max-height: 180px;
+    padding-right: 2px;
+}
+
+.quick_tables_list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.quick_tables_list::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+
+.quick_table_item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.quick_table_item:hover {
+    background: #273548;
+    border-color: #0284c7;
+    transform: translateX(1px);
+}
+
+.quick_tbl_name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #f1f5f9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+}
+
+.quick_tbl_status {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 12px;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+}
+
+/* Free / Available: Green badge */
+.quick_tbl_status.free,
+.quick_table_item.free .quick_tbl_status {
+    background: rgba(34, 197, 94, 0.18);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+/* Occupied / Reserved: Red badge */
+.quick_tbl_status.occupied,
+.quick_table_item.occupied .quick_tbl_status {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.quick_table_item.occupied {
+    border-left: 3px solid #ef4444;
+}
+
+.quick_table_item.free {
+    border-left: 3px solid #22c55e;
+}
+
 

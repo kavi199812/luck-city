@@ -1041,6 +1041,24 @@ if ($wl) {
                             
                             <button type="button" class="numpad_btn numpad_btn_enter" id="numpad_enter_btn">OK</button>
                         </div>
+
+                        <!-- ── Quick Table Status Panel ── -->
+                        <div id="quick_tables_panel">
+                            <div class="quick_tables_header">
+                                <span><i class="fas fa-chair" style="color: #0284c7;"></i> Tables Status</span>
+                                <span id="refresh_quick_tables" title="Refresh"><i class="fas fa-sync-alt"></i></span>
+                            </div>
+                            <div id="quick_tables_list" class="quick_tables_list">
+                                <?php if (!empty($tables)) {
+                                    foreach ($tables as $tbl) { ?>
+                                        <div class="quick_table_item free" id="quick_tbl_item_<?php echo $tbl->id; ?>" data-table-id="<?php echo $tbl->id; ?>" data-table-name="<?php echo htmlspecialchars($tbl->name); ?>">
+                                            <span class="quick_tbl_name"><?php echo htmlspecialchars($tbl->name); ?></span>
+                                            <span class="quick_tbl_status free" id="quick_tbl_status_<?php echo $tbl->id; ?>">Available</span>
+                                        </div>
+                                    <?php }
+                                } ?>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- ── Calculator Mode ── -->
@@ -5578,6 +5596,7 @@ if ($wl) {
                         mergeWithLocalTableBookings().then(function() {
                             renderAreaFilters();
                             renderTablesGrid('all');
+                            if (window.updateQuickTablesStatus) window.updateQuickTablesStatus();
                             $('#dine_in_table_modal').removeClass('display_none').addClass('active').css('display', 'flex');
                             $(".pos__modal__overlay").fadeIn(200);
                         });
@@ -6355,6 +6374,73 @@ if ($wl) {
                 }
                 calc.current = calc.current.slice(0, -1);
                 calcUpdateDisplay();
+            });
+
+            /* ══════════════════════════════════════════════════════════
+             *  LIVE QUICK TABLE STATUS UPDATER (100% IndexedDB Accuracy)
+             * ══════════════════════════════════════════════════════════ */
+            window.updateQuickTablesStatus = function() {
+                try {
+                    let request = window.indexedDB.open("irestora_plus", 1);
+                    request.onsuccess = function(event) {
+                        let localDb = request.result;
+                        if (!localDb.objectStoreNames.contains("order_tables")) return;
+
+                        let transaction = localDb.transaction(['order_tables'], "readonly");
+                        let objectStore = transaction.objectStore("order_tables");
+                        var occupiedTableIds = {};
+
+                        objectStore.openCursor().onsuccess = function(e) {
+                            let cursor = e.target.result;
+                            if (cursor) {
+                                let row = cursor.value;
+                                if (row && row.table_id) {
+                                    occupiedTableIds[Number(row.table_id)] = row.sale_no || 'Occupied';
+                                }
+                                cursor.continue();
+                            } else {
+                                // Apply exact statuses to the quick table list
+                                $('.quick_table_item').each(function() {
+                                    var tblId = Number($(this).attr('data-table-id'));
+                                    var itemEl = $(this);
+                                    var statusEl = $('#quick_tbl_status_' + tblId);
+                                    var isOccupied = !!occupiedTableIds[tblId];
+
+                                    if (isOccupied) {
+                                        itemEl.removeClass('free').addClass('occupied');
+                                        statusEl.removeClass('free').addClass('occupied').text('Occupied');
+                                    } else {
+                                        itemEl.removeClass('occupied').addClass('free');
+                                        statusEl.removeClass('occupied').addClass('free').text('Available');
+                                    }
+                                });
+                            }
+                        };
+                    };
+                } catch (err) {
+                    console.error("Quick tables status error:", err);
+                }
+            };
+
+            // Initial load + periodic polling (every 3 seconds)
+            setTimeout(window.updateQuickTablesStatus, 300);
+            setTimeout(window.updateQuickTablesStatus, 1500);
+            setInterval(window.updateQuickTablesStatus, 3000);
+
+            // Manual Refresh Click
+            $(document).on('click', '#refresh_quick_tables', function(e) {
+                e.stopPropagation();
+                var icon = $(this).find('i');
+                icon.addClass('fa-spin');
+                if (window.updateQuickTablesStatus) window.updateQuickTablesStatus();
+                setTimeout(function() {
+                    icon.removeClass('fa-spin');
+                }, 600);
+            });
+
+            // Clicking a Table row opens the Dine In Table selection modal
+            $(document).on('click', '.quick_table_item', function() {
+                $('.dine_in_button').trigger('click');
             });
 
         });

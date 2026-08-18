@@ -9351,6 +9351,14 @@
         _foipIsInitialDigit = false;
     });
 
+    // Fixed Quantity Preset Buttons (5, 10, 20, 50, 100)
+    $(document).on('click', '.foip-qty-set-btn', function (e) {
+        e.preventDefault();
+        let setVal = parseInt($(this).attr('data-set')) || 1;
+        $('#foip_qty_input_val').val(setVal);
+        _foipIsInitialDigit = false;
+    });
+
     // Quick Add Preset Buttons (+5, +10, +20, +50, +100)
     $(document).on('click', '.foip-qty-preset-btn', function (e) {
         e.preventDefault();

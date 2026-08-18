@@ -4229,9 +4229,21 @@ if ($wl) {
                     </div>
                 </div>
 
-                <!-- Quick Presets (+5, +10, +20, +50, +100) -->
+                <!-- Fixed Quantity Presets (Direct Value) -->
                 <div class="foip-qty-presets-wrap">
-                    <span class="foip-qty-presets-label">Quick Add Presets:</span>
+                    <span class="foip-qty-presets-label">Set Fixed Quantity:</span>
+                    <div class="foip-qty-presets-grid">
+                        <button type="button" class="foip-qty-set-btn" data-set="5">5</button>
+                        <button type="button" class="foip-qty-set-btn" data-set="10">10</button>
+                        <button type="button" class="foip-qty-set-btn" data-set="20">20</button>
+                        <button type="button" class="foip-qty-set-btn" data-set="50">50</button>
+                        <button type="button" class="foip-qty-set-btn" data-set="100">100</button>
+                    </div>
+                </div>
+
+                <!-- Quick Add Presets (+ Amount) -->
+                <div class="foip-qty-presets-wrap">
+                    <span class="foip-qty-presets-label">Quick Add (+):</span>
                     <div class="foip-qty-presets-grid">
                         <button type="button" class="foip-qty-preset-btn" data-add="5">+5</button>
                         <button type="button" class="foip-qty-preset-btn" data-add="10">+10</button>

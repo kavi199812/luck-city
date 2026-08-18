@@ -5590,6 +5590,13 @@ if ($wl) {
             $(document).on('click', '.close_dine_in_table_modal', function() {
                 $('#dine_in_table_modal').addClass('display_none').removeClass('active').css('display', 'none');
                 $(".pos__modal__overlay").fadeOut(200);
+
+                // If no table has been selected yet and we are in Dine In mode, switch back to Take Away
+                var hasSelectedTable = $(".new_book_to_table").length > 0 || ($("#update_sale_id").val() && $("#update_sale_id").val() != "");
+                if (!hasSelectedTable) {
+                    $(".take_away_button, .tablet_btn[data-id='2']").first().click();
+                    toastr['info']('Table not selected. Switched to Take Away mode.', 'Notice');
+                }
             });
 
             // Helper to merge IndexedDB order_tables with server-fetched table status
@@ -5637,6 +5644,7 @@ if ($wl) {
                 });
             }
 
+            window.openDineInTableModal = openDineInTableModal;
             function openDineInTableModal() {
                 var clean_url = base_url;
                 if (clean_url.charAt(clean_url.length - 1) !== '/') {

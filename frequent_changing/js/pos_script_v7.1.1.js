@@ -7871,6 +7871,16 @@
                     }
                 } else if (selected_order_type_object.attr("data-id") == "dine_in_button") {
                     order_type = 1;
+                    let total_orders_table = $(".new_book_to_table").length;
+                    if (!total_orders_table && !sale_id && is_self_order != "Yes" && is_online_order != "Yes") {
+                        toastr['error']('Please select a table for Dine In order.', 'Table Required');
+                        if (typeof window.openDineInTableModal === "function") {
+                            window.openDineInTableModal();
+                        } else {
+                            $("#table_button, .dine_in_button").first().click();
+                        }
+                        return false;
+                    }
                     if (waiter_id == "" && is_self_order != "Yes" && is_online_order != "Yes") {
                         let op1 = $("#walk_in_customer").data("select2");
                         let op2 = $("#select_waiter").data("select2");
@@ -8448,6 +8458,16 @@
                     }
                 } else if (selected_order_type_object.attr("data-id") == "dine_in_button") {
                     order_type = 1;
+                    let total_orders_table = $(".new_book_to_table").length;
+                    if (!total_orders_table && !sale_id && is_self_order != "Yes" && is_online_order != "Yes") {
+                        toastr['error']('Please select a table for Dine In order.', 'Table Required');
+                        if (typeof window.openDineInTableModal === "function") {
+                            window.openDineInTableModal();
+                        } else {
+                            $("#table_button, .dine_in_button").first().click();
+                        }
+                        return false;
+                    }
                     if (waiter_id == "") {
                         let op1 = $("#walk_in_customer").data("select2");
                         let op2 = $("#select_waiter").data("select2");

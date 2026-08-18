@@ -4383,6 +4383,7 @@
                                             .datepicker("update", response.sale_date);
 
                                         $("#finalize_update_type").html("2"); //when 2 update payment method, close time and order_status to 3
+                                        renderFinalizeOrderItems(response);
                                         refreshOrderTypePopups();
                                     }
                                 });
@@ -4446,6 +4447,7 @@
                                     .datepicker("update", response.sale_date);
 
                                 $("#finalize_update_type").html("2"); //when 2 update payment method, close time and order_status to 3
+                                renderFinalizeOrderItems(response);
                             }
                         });
                     }
@@ -8927,6 +8929,476 @@
             }
         }
     );
+    // ─── Render Order Items Panel inside Finalize Modal (State-backed) ───
+    window._finalize_state = {
+        items: [],
+        totalPayable: 0,
+        sale_id: null
+    };
+
+    window.renderFinalizeOrderItemsFromState = function () {
+        let precision = (typeof ir_precision !== 'undefined') ? ir_precision : 2;
+        let items = window._finalize_state.items || [];
+        let totalPayable = window._finalize_state.totalPayable || 0;
+
+        if (!items || items.length === 0) {
+            $('#foip_item_list').html('<div class="foip-empty"><i class="fas fa-shopping-basket" style="font-size:24px;margin-bottom:8px;display:block;opacity:0.4;"></i>No items in cart</div>');
+            $('#foip_item_count').text('0 items');
+            $('#foip_total').text(Number(totalPayable).toFixed(precision));
+            return;
+        }
+
+        let totalQty = 0;
+        let html = '';
+        for (let i = 0; i < items.length; i++) {
+            let itm = items[i];
+            totalQty += itm.qty;
+            html += '<div class="foip-item" data-id="' + itm.id + '">'
+                + '<div class="foip-item-left">'
+                +   '<span class="foip-item-name" title="' + itm.name + '">' + itm.name + '</span>'
+                +   '<span class="foip-item-unit">' + (itm.unitPrice > 0 ? (itm.unitPrice.toFixed(precision)) : '') + '</span>'
+                + '</div>'
+                + '<div class="foip-item-controls">'
+                +   '<button type="button" class="foip-btn-ctrl foip-btn-minus" data-id="' + itm.id + '" title="Decrease quantity"><i class="fas fa-minus"></i></button>'
+                +   '<span class="foip-item-qty">' + itm.qty + '</span>'
+                +   '<button type="button" class="foip-btn-ctrl foip-btn-plus" data-id="' + itm.id + '" title="Increase quantity"><i class="fas fa-plus"></i></button>'
+                +   '<span class="foip-item-price">' + itm.price.toFixed(precision) + '</span>'
+                +   '<button type="button" class="foip-btn-ctrl foip-btn-del" data-id="' + itm.id + '" title="Remove item"><i class="fas fa-trash-alt"></i></button>'
+                + '</div>'
+                + '</div>';
+        }
+
+        $('#foip_item_list').html(html);
+        $('#foip_item_count').text(totalQty + (totalQty === 1 ? ' item' : ' items'));
+        $('#foip_total').text(Number(totalPayable).toFixed(precision));
+    };
+
+    window.updateFinalizeModalFromState = function () {
+        let precision = (typeof ir_precision !== 'undefined') ? ir_precision : 2;
+        let newPayable = 0;
+        let totalQty = 0;
+
+        (window._finalize_state.items || []).forEach(function (i) {
+            newPayable += i.price;
+            totalQty += i.qty;
+        });
+
+        window._finalize_state.totalPayable = newPayable;
+
+        let formatted = newPayable.toFixed(precision);
+        $("#finalize_total_payable").html(formatted);
+        $("#finalize_total_payable").attr('data-original_payable', formatted);
+        $("#pay_amount_invoice_input").val(formatted);
+
+        if (typeof cal_finalize_modal === 'function') {
+            cal_finalize_modal('');
+        } else {
+            $("#finalize_total_due").html(formatted);
+            $(".set_default_quick_cach").attr("data-amount", formatted).html(formatted);
+        }
+
+        window.renderFinalizeOrderItemsFromState();
+
+        // Update IndexedDB if running order is open
+        let sale_id = window._finalize_state.sale_id || Number($("#last_future_sale_id").val());
+        if (sale_id && typeof db !== 'undefined' && db) {
+            let objectStore = db.transaction(['sales'], "readwrite").objectStore("sales");
+            objectStore.openCursor().onsuccess = function (event) {
+                let cursor = event.target.result;
+                if (cursor) {
+                    if (cursor.value.sales_id == sale_id) {
+                        let rowData = cursor.value;
+                        try {
+                            let orderObj = JSON.parse(rowData.order);
+                            orderObj.items = window._finalize_state.items.map(function (it) {
+                                return {
+                                    food_menu_id: it.id,
+                                    menu_name: it.name,
+                                    qty: it.qty,
+                                    menu_unit_price: it.unitPrice,
+                                    menu_price_with_discount: it.price,
+                                    menu_price_without_discount: it.price,
+                                    item_vat: []
+                                };
+                            });
+                            orderObj.total_payable = newPayable;
+                            orderObj.sub_total = newPayable;
+                            orderObj.total_items_in_cart = totalQty;
+                            rowData.order = JSON.stringify(orderObj);
+                            cursor.update(rowData);
+                        } catch (e) { }
+                    }
+                    cursor.continue();
+                }
+            };
+        }
+    };
+
+    window.renderFinalizeOrderItems = function (response) {
+        let precision = (typeof ir_precision !== 'undefined') ? ir_precision : 2;
+
+        if (response && response.items && response.items.length > 0) {
+            window._finalize_state.items = [];
+            window._finalize_state.sale_id = response.sale_id || response.sales_id || null;
+            let sumTotal = 0;
+            for (let i = 0; i < response.items.length; i++) {
+                let itm = response.items[i];
+                let id = String(itm.food_menu_id || itm.id || (i + 1));
+                let q = Number(itm.qty) || 1;
+                let unit = Number(itm.menu_unit_price || itm.price || 0);
+                let p = Number(itm.menu_price_with_discount || (unit * q)) || (unit * q);
+                if (unit === 0 && q > 0 && p > 0) {
+                    unit = p / q;
+                }
+                sumTotal += p;
+                window._finalize_state.items.push({
+                    id: id,
+                    name: itm.menu_name || itm.name || 'Item',
+                    qty: q,
+                    unitPrice: unit,
+                    price: p
+                });
+            }
+            window._finalize_state.totalPayable = Number(response.total_payable) || sumTotal;
+            window.renderFinalizeOrderItemsFromState();
+            return;
+        }
+
+        // If not passed response, check if already in state
+        if (window._finalize_state.items && window._finalize_state.items.length > 0) {
+            window.renderFinalizeOrderItemsFromState();
+            return;
+        }
+
+        // Try to read from running orders in IndexedDB
+        if ($(".holder .order_details .single_order[data-selected=selected]").length > 0) {
+            let selected_order = $(".holder .order_details .single_order[data-selected=selected]");
+            let sale_id = selected_order.attr("id").substr(6);
+            if (sale_id && typeof get_all_information_from_indexeddb === 'function') {
+                get_all_information_from_indexeddb(sale_id).then(function (data) {
+                    if (data) {
+                        let resObj = (typeof data === 'string') ? JSON.parse(data) : data;
+                        if (resObj && resObj.items && resObj.items.length > 0) {
+                            resObj.sale_id = sale_id;
+                            window.renderFinalizeOrderItems(resObj);
+                        }
+                    }
+                }).catch(function () { });
+                return;
+            }
+        }
+
+        // Fallback: Read from DOM cart
+        window._finalize_state.items = [];
+        let domSum = 0;
+        $('[id^="item_name_table_"]').each(function () {
+            let id = $(this).attr('id').replace('item_name_table_', '');
+            let name = $(this).text().trim();
+            let qty = parseFloat($('#item_quantity_table_' + id).text() || 1) || 1;
+            let unitPrice = parseFloat($('#item_price_table_' + id).text().replace(/,/g, '') || 0);
+            let price = parseFloat($('#item_total_price_table_' + id).text().replace(/,/g, '') || 0);
+            if (!price || isNaN(price)) {
+                price = unitPrice * qty;
+            }
+            if (unitPrice === 0 && qty > 0 && price > 0) {
+                unitPrice = price / qty;
+            }
+            if (name) {
+                domSum += price;
+                window._finalize_state.items.push({ id: id, name: name, qty: qty, unitPrice: unitPrice, price: price });
+            }
+        });
+
+        if (window._finalize_state.items.length === 0 && $('.order_holder .single_order').length > 0) {
+            $('.order_holder .single_order').each(function (idx) {
+                let id = $(this).find('[id^="item_quantity_table_"]').attr('id') ? $(this).find('[id^="item_quantity_table_"]').attr('id').replace('item_quantity_table_', '') : String(idx + 1);
+                let name = $(this).find('.first_column').first().text().trim().replace(/[\r\n]+/g, ' ');
+                let qty = parseFloat($(this).find('.qty_item_custom, .third_column span').first().text() || 1) || 1;
+                let unitPrice = parseFloat($(this).find('.second_column span').first().text().replace(/,/g, '') || 0);
+                let price = parseFloat($(this).find('.fifth_column span').first().text().replace(/,/g, '') || 0);
+                if (unitPrice === 0 && qty > 0 && price > 0) {
+                    unitPrice = price / qty;
+                }
+                if (name) {
+                    domSum += price;
+                    window._finalize_state.items.push({ id: id, name: name, qty: qty, unitPrice: unitPrice, price: price });
+                }
+            });
+        }
+
+        let payableFromModal = parseFloat($('#finalize_total_payable').text().replace(/,/g, '') || 0);
+        window._finalize_state.totalPayable = payableFromModal > 0 ? payableFromModal : domSum;
+        window.renderFinalizeOrderItemsFromState();
+    };
+
+    // ─── Inline Order Actions inside Finalize Modal ──────────────────────────
+    // Increase Item Qty
+    $(document).on('click', '.foip-btn-plus', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let itemId = String($(this).attr('data-id'));
+
+        let item = (window._finalize_state.items || []).find(function (it) {
+            return String(it.id) === itemId;
+        });
+
+        if (item) {
+            item.qty += 1;
+            item.price = item.qty * item.unitPrice;
+        }
+
+        // Trigger DOM increment if element exists
+        let plusBtn = $('#increase_item_table_' + itemId);
+        if (plusBtn.length) {
+            plusBtn.trigger('click');
+        }
+
+        window.updateFinalizeModalFromState();
+    });
+
+    // Decrease Item Qty
+    $(document).on('click', '.foip-btn-minus', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let itemId = String($(this).attr('data-id'));
+
+        let itemIdx = (window._finalize_state.items || []).findIndex(function (it) {
+            return String(it.id) === itemId;
+        });
+
+        if (itemIdx > -1) {
+            let item = window._finalize_state.items[itemIdx];
+            if (item.qty > 1) {
+                item.qty -= 1;
+                item.price = item.qty * item.unitPrice;
+            } else {
+                window._finalize_state.items.splice(itemIdx, 1);
+            }
+        }
+
+        // Trigger DOM decrement if element exists
+        let minusBtn = $('#decrease_item_table_' + itemId);
+        if (minusBtn.length) {
+            minusBtn.trigger('click');
+        }
+
+        window.updateFinalizeModalFromState();
+    });
+
+    // Remove Item from Order
+    $(document).on('click', '.foip-btn-del', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let itemId = String($(this).attr('data-id'));
+
+        let itemIdx = (window._finalize_state.items || []).findIndex(function (it) {
+            return String(it.id) === itemId;
+        });
+
+        if (itemIdx > -1) {
+            window._finalize_state.items.splice(itemIdx, 1);
+        }
+
+        // Trigger DOM remove if element exists
+        let removeBtn = $('.removeCartItem[data-id="' + itemId + '"]');
+        if (removeBtn.length) {
+            removeBtn.trigger('click');
+        } else {
+            $('#item_name_table_' + itemId).closest('.single_order, [class*="single_order"]').remove();
+        }
+
+        window.updateFinalizeModalFromState();
+    });
+
+    // ─── Product Selection Modal Controller (Layered on top of Finalize Modal) ──
+    let fapmCurrentCategory = 'all';
+    let fapmSearchQuery = '';
+
+    window.renderFapmProducts = function () {
+        let precision = (typeof ir_precision !== 'undefined') ? ir_precision : 2;
+        let grid = $('#fapm_products_grid');
+        if (!window.items || !window.items.length) {
+            grid.html('<div class="fapm-no-products"><i class="fas fa-box-open"></i><p>No products available</p></div>');
+            return;
+        }
+
+        let filtered = window.items.filter(function (item) {
+            let catMatch = (fapmCurrentCategory === 'all') || (String(item.category_name || '').toLowerCase() === fapmCurrentCategory.toLowerCase());
+            let name = (item.item_name || item.name || '').toLowerCase();
+            let code = (item.item_code || item.code || '').toLowerCase();
+            let searchMatch = !fapmSearchQuery || (name.indexOf(fapmSearchQuery) > -1 || code.indexOf(fapmSearchQuery) > -1);
+            return catMatch && searchMatch;
+        });
+
+        if (filtered.length === 0) {
+            grid.html('<div class="fapm-no-products"><i class="fas fa-search"></i><p>No products match your search</p></div>');
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(function (p) {
+            let price = parseFloat(p.price || p.sale_price || 0);
+            let code = p.item_code || p.code || '';
+            let name = p.item_name || p.name || 'Product';
+            let cat = p.category_name || '';
+
+            // Check if already in order to show quantity badge
+            let inOrder = (window._finalize_state.items || []).find(function (it) {
+                return String(it.id) === String(p.item_id);
+            });
+            let qtyBadge = inOrder ? '<span class="fapm-card-qty-badge">x' + inOrder.qty + '</span>' : '';
+
+            html += '<div class="fapm-product-card" data-id="' + p.item_id + '" data-name="' + name + '" data-price="' + price + '">'
+                  +   qtyBadge
+                  +   '<div class="fapm-card-name" title="' + name + '">' + name + '</div>'
+                  +   (code ? '<div class="fapm-card-code">' + code + '</div>' : '')
+                  +   '<div class="fapm-card-bottom">'
+                  +     '<span class="fapm-card-cat">' + cat + '</span>'
+                  +     '<span class="fapm-card-price">' + price.toFixed(precision) + '</span>'
+                  +   '</div>'
+                  + '</div>';
+        });
+
+        grid.html(html);
+    };
+
+    window.openFinalizeAddProductModal = function () {
+        fapmCurrentCategory = 'all';
+        fapmSearchQuery = '';
+        $('#fapm_search_input').val('');
+        $('#fapm_clear_search').hide();
+
+        // Build category buttons
+        let catBar = $('#fapm_categories_bar');
+        let categories = ['all'];
+        if (window.items) {
+            window.items.forEach(function (it) {
+                if (it.category_name && categories.indexOf(it.category_name) === -1) {
+                    categories.push(it.category_name);
+                }
+            });
+        }
+
+        let catHtml = '';
+        categories.forEach(function (c) {
+            let label = (c === 'all') ? 'All Products' : c;
+            let active = (c === 'all') ? 'active' : '';
+            catHtml += '<button type="button" class="fapm-cat-btn ' + active + '" data-cat="' + c + '">' + label + '</button>';
+        });
+        catBar.html(catHtml);
+
+        window.renderFapmProducts();
+        $('#fapm_added_feedback').text('Click any product to add to order').removeClass('active');
+        $('#finalize_add_product_modal').addClass('active').css('display', 'flex');
+        setTimeout(function () {
+            $('#fapm_search_input').focus();
+        }, 180);
+    };
+
+    window.closeFinalizeAddProductModal = function () {
+        $('#finalize_add_product_modal').removeClass('active').css('display', 'none');
+    };
+
+    // Open Add Product Modal Button Click
+    $(document).on('click', '#open_finalize_add_product_modal', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.openFinalizeAddProductModal();
+    });
+
+    // Close / Done Buttons
+    $(document).on('click', '#close_finalize_add_product_modal, #done_finalize_add_product_modal', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.closeFinalizeAddProductModal();
+    });
+
+    // Category Filter Click
+    $(document).on('click', '.fapm-cat-btn', function () {
+        $('.fapm-cat-btn').removeClass('active');
+        $(this).addClass('active');
+        fapmCurrentCategory = $(this).attr('data-cat') || 'all';
+        window.renderFapmProducts();
+    });
+
+    // Search Input
+    $(document).on('input keyup', '#fapm_search_input', function () {
+        fapmSearchQuery = $(this).val().toLowerCase().trim();
+        if (fapmSearchQuery.length > 0) {
+            $('#fapm_clear_search').show();
+        } else {
+            $('#fapm_clear_search').hide();
+        }
+        window.renderFapmProducts();
+    });
+
+    $(document).on('click', '#fapm_clear_search', function () {
+        $('#fapm_search_input').val('');
+        fapmSearchQuery = '';
+        $('#fapm_clear_search').hide();
+        window.renderFapmProducts();
+        $('#fapm_search_input').focus();
+    });
+
+    // Clicking a Product Card in the Add Product Modal
+    $(document).on('click', '.fapm-product-card', function () {
+        let card = $(this);
+        let itemId = String(card.attr('data-id'));
+        let name = card.attr('data-name');
+        let price = parseFloat(card.attr('data-price') || 0);
+
+        let productInfo = (window.items || []).find(function (it) {
+            return String(it.item_id) === itemId;
+        });
+
+        if (productInfo) {
+            let unitPrice = parseFloat(productInfo.price || productInfo.sale_price || price);
+            let existing = (window._finalize_state.items || []).find(function (it) {
+                return String(it.id) === itemId;
+            });
+
+            if (existing) {
+                existing.qty += 1;
+                existing.price = existing.qty * existing.unitPrice;
+            } else {
+                window._finalize_state.items.push({
+                    id: itemId,
+                    name: productInfo.item_name || productInfo.name || name,
+                    qty: 1,
+                    unitPrice: unitPrice,
+                    price: unitPrice
+                });
+            }
+        }
+
+        // Only trigger native DOM click if we are editing the fresh cart (not an indexedDB running order)
+        if (!window._finalize_state.sale_id) {
+            let productCard = $('#item_' + itemId);
+            if (productCard.length) {
+                productCard.trigger('click');
+            } else if (typeof add_to_cart_custom === 'function') {
+                add_to_cart_custom(itemId);
+            }
+        }
+
+        // Live update Finalize Modal
+        window.updateFinalizeModalFromState();
+
+        // Visual feedback on card
+        card.addClass('fapm-card-pulse');
+        setTimeout(function () {
+            card.removeClass('fapm-card-pulse');
+            window.renderFapmProducts();
+        }, 220);
+
+        // Feedback text update
+        let precision = (typeof ir_precision !== 'undefined') ? ir_precision : 2;
+        let formattedTotal = Number(window._finalize_state.totalPayable).toFixed(precision);
+        $('#fapm_added_feedback').html('✓ Added: <b>' + name + '</b> (Total: Rs ' + formattedTotal + ')').addClass('active');
+    });
+    // ────────────────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────────────
     $(document).on("click", "#finalize_order_button", function (e) {
         let due_amount_invoice_input = Number($("#finalize_total_due").html());
         let customer_id = $("#selected_invoice_sale_customer").val();
@@ -13001,6 +13473,15 @@
                 print_invoice(sale_id, 1);
             }
             skip_invoice_print = 0;
+
+            // Clear main screen cart and finalize state
+            $(".order_table_holder .order_holder, .order_holder").empty();
+            window._finalize_state = { items: [], totalPayable: 0, sale_id: null };
+            if (typeof recalculateCartTotals === 'function') {
+                recalculateCartTotals();
+            }
+            $('#numpad_target_name').text('No Item');
+            $('#numpad_val_display').text('0');
         }, 400);
     }
     function get_all_hold_sales() {
@@ -14610,6 +15091,14 @@
         $("#total_payable_last_10").html(Number(0).toFixed(ir_precision));
     }
     function reset_finalize_modal() {
+        window._finalize_state = { items: [], totalPayable: 0, sale_id: null };
+        $(".order_table_holder .order_holder, .order_holder").empty();
+        if (typeof recalculateCartTotals === 'function') {
+            recalculateCartTotals();
+        }
+        $('#numpad_target_name').text('No Item');
+        $('#numpad_val_display').text('0');
+
         $("#finalize_total_payable").html(Number(0).toFixed(ir_precision));
         $("#given_amount_input").val("");
         $("#change_amount_input").val("");
@@ -18647,6 +19136,7 @@
                                             .datepicker("update", response.sale_date);
 
                                         $("#finalize_update_type").html("2"); //when 2 update payment method, close time and order_status to 3
+                                        renderFinalizeOrderItems(response);
                                     }
                                 });
                             }
@@ -18714,6 +19204,7 @@
                                     .datepicker("update", response.sale_date);
 
                                 $("#finalize_update_type").html("2"); //when 2 update payment method, close time and order_status to 3
+                                renderFinalizeOrderItems(response);
                             }
                         });
                     }

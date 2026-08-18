@@ -3916,6 +3916,28 @@ if ($wl) {
                     id="order-split-bill-payment-amount"><?php echo lang('payment_details'); ?></button>
             </div>
             <div class="order-payment-wrapper">
+                <!-- ── Order Items Panel (inline in finalize modal) ── -->
+                <div class="finalize-order-items-panel">
+                    <div class="foip-header">
+                        <i class="fas fa-receipt"></i>
+                        <span>Order Items</span>
+                        <span class="foip-item-count" id="foip_item_count">0 items</span>
+                    </div>
+                    <div class="foip-add-btn-wrap">
+                        <button type="button" id="open_finalize_add_product_modal" class="foip-add-product-btn">
+                            <i class="fas fa-plus-circle"></i> Add Products
+                        </button>
+                    </div>
+                    <div class="foip-list" id="foip_item_list">
+                        <!-- JS renders items here -->
+                        <div class="foip-empty">No items</div>
+                    </div>
+                    <div class="foip-footer">
+                        <span>Total</span>
+                        <span id="foip_total">0.00</span>
+                    </div>
+                </div>
+                <!-- ── End Order Items Panel ── -->
                 <div class="payment-list order-payment-list">
                     <ul class="list-for-payment-type">
                         <li class="head">
@@ -4151,6 +4173,46 @@ if ($wl) {
             </div>
         </div>
     </div>
+
+    <!-- ── Product Selection Modal (Over Finalize Modal) ── -->
+    <div id="finalize_add_product_modal" class="fapm-modal-backdrop" style="display: none;">
+        <div class="fapm-modal-box">
+            <div class="fapm-header">
+                <div class="fapm-header-title">
+                    <i class="fas fa-utensils"></i>
+                    <span>Add Products to Order</span>
+                </div>
+                <div class="fapm-search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="fapm_search_input" placeholder="Search product name or code..." autocomplete="off">
+                    <button type="button" id="fapm_clear_search" style="display:none;"><i class="fas fa-times"></i></button>
+                </div>
+                <button type="button" class="fapm-close-btn" id="close_finalize_add_product_modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="fapm-categories-bar" id="fapm_categories_bar">
+                <button type="button" class="fapm-cat-btn active" data-cat="all">All Products</button>
+            </div>
+            
+            <div class="fapm-grid-wrap">
+                <div class="fapm-products-grid" id="fapm_products_grid">
+                    <!-- Product cards rendered dynamically -->
+                </div>
+            </div>
+            
+            <div class="fapm-footer">
+                <div class="fapm-footer-info">
+                    <span id="fapm_added_feedback" class="fapm-feedback-text">Click any product to add to order</span>
+                </div>
+                <button type="button" class="fapm-done-btn" id="done_finalize_add_product_modal">
+                    <i class="fas fa-check"></i> Done
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- ── End Product Selection Modal ── -->
     <!-- end of item modal -->
 
     <!-- The Notification List Modal -->
@@ -6450,6 +6512,30 @@ if ($wl) {
             $(document).on('click', '.quick_table_item', function() {
                 $('.dine_in_button').trigger('click');
             });
+
+            /* ══════════════════════════════════════════════════════════
+             *  Auto-Render Finalize Modal Order Items Panel
+             * ══════════════════════════════════════════════════════════ */
+            const paymentModalEl = document.getElementById('order_payment_modal');
+            if (paymentModalEl) {
+                const paymentModalObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.attributeName === 'class') {
+                            if (paymentModalEl.classList.contains('active')) {
+                                if (typeof window.renderFinalizeOrderItems === 'function') {
+                                    window.renderFinalizeOrderItems();
+                                }
+                                setTimeout(function() {
+                                    if (typeof window.renderFinalizeOrderItems === 'function') {
+                                        window.renderFinalizeOrderItems();
+                                    }
+                                }, 200);
+                            }
+                        }
+                    });
+                });
+                paymentModalObserver.observe(paymentModalEl, { attributes: true, attributeFilter: ['class'] });
+            }
 
         });
     </script>

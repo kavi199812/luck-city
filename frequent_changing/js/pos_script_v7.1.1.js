@@ -8976,7 +8976,7 @@
                 + '</div>'
                 + '<div class="foip-item-controls">'
                 +   '<button type="button" class="foip-btn-ctrl foip-btn-minus" data-id="' + itm.id + '" title="Decrease quantity"><i class="fas fa-minus"></i></button>'
-                +   '<span class="foip-item-qty">' + itm.qty + '</span>'
+                +   '<span class="foip-item-qty" data-id="' + itm.id + '" title="Tap to change quantity">' + itm.qty + '</span>'
                 +   '<button type="button" class="foip-btn-ctrl foip-btn-plus" data-id="' + itm.id + '" title="Increase quantity"><i class="fas fa-plus"></i></button>'
                 +   '<span class="foip-item-price">' + itm.price.toFixed(precision) + '</span>'
                 +   '<button type="button" class="foip-btn-ctrl foip-btn-del" data-id="' + itm.id + '" title="Remove item"><i class="fas fa-trash-alt"></i></button>'
@@ -9224,6 +9224,180 @@
         }
 
         window.updateFinalizeModalFromState();
+    });
+
+    // ─── Touch Quantity Numpad Modal Controller (Finalize Order Items) ────────
+    let _foipActiveItemId = null;
+    let _foipIsInitialDigit = true;
+
+    function openFoipQtyModal(itemId) {
+        _foipActiveItemId = String(itemId);
+        let item = (window._finalize_state.items || []).find(function (it) {
+            return String(it.id) === _foipActiveItemId;
+        });
+
+        if (!item) return;
+
+        $('#foip_qty_modal_item_name').text(item.name || 'Set Quantity');
+        $('#foip_qty_input_val').val(item.qty || 1);
+        _foipIsInitialDigit = true;
+
+        $('#foip_qty_modal').fadeIn(150);
+    }
+
+    function closeFoipQtyModal() {
+        $('#foip_qty_modal').fadeOut(120);
+        _foipActiveItemId = null;
+    }
+
+    function applyFoipQty() {
+        if (!_foipActiveItemId) {
+            closeFoipQtyModal();
+            return;
+        }
+
+        let newQty = parseInt($('#foip_qty_input_val').val()) || 1;
+        if (newQty < 1) newQty = 1;
+
+        let item = (window._finalize_state.items || []).find(function (it) {
+            return String(it.id) === _foipActiveItemId;
+        });
+
+        if (item) {
+            item.qty = newQty;
+            item.price = item.qty * item.unitPrice;
+
+            // Sync to DOM cart element if exists
+            let $domQty = $('#item_quantity_table_' + _foipActiveItemId);
+            if ($domQty.length) {
+                $domQty.text(newQty);
+                let $domTotal = $('#item_total_price_table_' + _foipActiveItemId);
+                if ($domTotal.length) {
+                    $domTotal.text(item.price.toFixed(typeof ir_precision !== 'undefined' ? ir_precision : 2));
+                }
+            }
+        }
+
+        window.updateFinalizeModalFromState();
+        closeFoipQtyModal();
+    }
+
+    // Tap Quantity Badge to Open Numpad
+    $(document).on('click', '.foip-item-qty', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let itemId = $(this).attr('data-id') || $(this).closest('.foip-item').attr('data-id');
+        if (itemId) {
+            openFoipQtyModal(itemId);
+        }
+    });
+
+    // Number Buttons (0-9)
+    $(document).on('click', '.foip-qty-num-btn:not(.foip-qty-btn-clear):not(.foip-qty-btn-backspace)', function (e) {
+        e.preventDefault();
+        let val = $(this).attr('data-val');
+        let $input = $('#foip_qty_input_val');
+        let current = $input.val();
+
+        if (_foipIsInitialDigit) {
+            $input.val(val === '0' ? '1' : val);
+            _foipIsInitialDigit = false;
+        } else {
+            if (current.length < 4) { // Max 9999
+                $input.val(current === '0' ? val : current + val);
+            }
+        }
+    });
+
+    // Clear Button (C)
+    $(document).on('click', '.foip-qty-btn-clear', function (e) {
+        e.preventDefault();
+        $('#foip_qty_input_val').val('1');
+        _foipIsInitialDigit = true;
+    });
+
+    // Backspace Button
+    $(document).on('click', '.foip-qty-btn-backspace', function (e) {
+        e.preventDefault();
+        let $input = $('#foip_qty_input_val');
+        let current = $input.val();
+        if (current.length > 1) {
+            $input.val(current.slice(0, -1));
+        } else {
+            $input.val('1');
+            _foipIsInitialDigit = true;
+        }
+    });
+
+    // Step Minus Button
+    $(document).on('click', '#foip_qty_step_minus', function (e) {
+        e.preventDefault();
+        let $input = $('#foip_qty_input_val');
+        let current = parseInt($input.val()) || 1;
+        if (current > 1) {
+            $input.val(current - 1);
+        }
+        _foipIsInitialDigit = false;
+    });
+
+    // Step Plus Button
+    $(document).on('click', '#foip_qty_step_plus', function (e) {
+        e.preventDefault();
+        let $input = $('#foip_qty_input_val');
+        let current = parseInt($input.val()) || 1;
+        if (current < 9999) {
+            $input.val(current + 1);
+        }
+        _foipIsInitialDigit = false;
+    });
+
+    // Quick Add Preset Buttons (+5, +10, +20, +50, +100)
+    $(document).on('click', '.foip-qty-preset-btn', function (e) {
+        e.preventDefault();
+        let addAmt = parseInt($(this).attr('data-add')) || 0;
+        let $input = $('#foip_qty_input_val');
+        let current = parseInt($input.val()) || 0;
+        let newVal = current + addAmt;
+        if (newVal > 9999) newVal = 9999;
+        $input.val(newVal);
+        _foipIsInitialDigit = false;
+    });
+
+    // Apply & Close Buttons
+    $(document).on('click', '#apply_foip_qty_modal', function (e) {
+        e.preventDefault();
+        applyFoipQty();
+    });
+
+    $(document).on('click', '#close_foip_qty_modal, #cancel_foip_qty_modal', function (e) {
+        e.preventDefault();
+        closeFoipQtyModal();
+    });
+
+    // Click on Backdrop to Close
+    $(document).on('click', '#foip_qty_modal', function (e) {
+        if ($(e.target).is('#foip_qty_modal')) {
+            closeFoipQtyModal();
+        }
+    });
+
+    // Keyboard support when Numpad Modal is visible
+    $(document).on('keydown', function (e) {
+        if ($('#foip_qty_modal').is(':visible')) {
+            if (e.key >= '0' && e.key <= '9') {
+                e.preventDefault();
+                $('.foip-qty-num-btn[data-val="' + e.key + '"]').trigger('click');
+            } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                $('.foip-qty-btn-backspace').trigger('click');
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                applyFoipQty();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                closeFoipQtyModal();
+            }
+        }
     });
 
     // ─── Product Selection Modal Controller (Layered on top of Finalize Modal) ──

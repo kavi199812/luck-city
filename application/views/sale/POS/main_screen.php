@@ -4204,6 +4204,70 @@ if ($wl) {
         </div>
     </div>
     <!-- ── End Product Selection Modal ── -->
+
+    <!-- ── Finalize Order Items Touch Quantity Numpad Modal ── -->
+    <div id="foip_qty_modal" class="foip-qty-modal-backdrop" style="display: none;">
+        <div class="foip-qty-modal-box">
+            <div class="foip-qty-modal-header">
+                <div class="foip-qty-modal-title">
+                    <i class="fas fa-calculator"></i>
+                    <span id="foip_qty_modal_item_name">Set Quantity</span>
+                </div>
+                <button type="button" class="foip-qty-modal-close" id="close_foip_qty_modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="foip-qty-modal-body">
+                <!-- Quantity Display Field -->
+                <div class="foip-qty-display-wrap">
+                    <div class="foip-qty-display-label">Enter Quantity:</div>
+                    <div class="foip-qty-display-input-box">
+                        <button type="button" class="foip-qty-step-btn foip-qty-step-minus" id="foip_qty_step_minus"><i class="fas fa-minus"></i></button>
+                        <input type="text" id="foip_qty_input_val" class="foip-qty-display-input" value="1" readonly>
+                        <button type="button" class="foip-qty-step-btn foip-qty-step-plus" id="foip_qty_step_plus"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+
+                <!-- Quick Presets (+5, +10, +20, +50, +100) -->
+                <div class="foip-qty-presets-wrap">
+                    <span class="foip-qty-presets-label">Quick Add Presets:</span>
+                    <div class="foip-qty-presets-grid">
+                        <button type="button" class="foip-qty-preset-btn" data-add="5">+5</button>
+                        <button type="button" class="foip-qty-preset-btn" data-add="10">+10</button>
+                        <button type="button" class="foip-qty-preset-btn" data-add="20">+20</button>
+                        <button type="button" class="foip-qty-preset-btn" data-add="50">+50</button>
+                        <button type="button" class="foip-qty-preset-btn" data-add="100">+100</button>
+                    </div>
+                </div>
+
+                <!-- Touch Numeric Keypad -->
+                <div class="foip-qty-numpad-grid">
+                    <button type="button" class="foip-qty-num-btn" data-val="1">1</button>
+                    <button type="button" class="foip-qty-num-btn" data-val="2">2</button>
+                    <button type="button" class="foip-qty-num-btn" data-val="3">3</button>
+
+                    <button type="button" class="foip-qty-num-btn" data-val="4">4</button>
+                    <button type="button" class="foip-qty-num-btn" data-val="5">5</button>
+                    <button type="button" class="foip-qty-num-btn" data-val="6">6</button>
+
+                    <button type="button" class="foip-qty-num-btn" data-val="7">7</button>
+                    <button type="button" class="foip-qty-num-btn" data-val="8">8</button>
+                    <button type="button" class="foip-qty-num-btn" data-val="9">9</button>
+
+                    <button type="button" class="foip-qty-num-btn foip-qty-btn-clear" data-action="clear">C</button>
+                    <button type="button" class="foip-qty-num-btn" data-val="0">0</button>
+                    <button type="button" class="foip-qty-num-btn foip-qty-btn-backspace" data-action="backspace"><i class="fas fa-backspace"></i></button>
+                </div>
+            </div>
+
+            <div class="foip-qty-modal-footer">
+                <button type="button" class="foip-qty-btn-cancel" id="cancel_foip_qty_modal">Cancel</button>
+                <button type="button" class="foip-qty-btn-apply" id="apply_foip_qty_modal"><i class="fas fa-check"></i> Set Quantity</button>
+            </div>
+        </div>
+    </div>
+    <!-- ── End Touch Quantity Numpad Modal ── -->
     <!-- end of item modal -->
 
     <!-- The Notification List Modal -->

@@ -788,8 +788,12 @@ function getDomain($url){
  * @param string
  */
 function getIPv4WithFormat($ipv_address){
-    $ipv_address = (isset($_SERVER["HTTPS"]) ? "https://" : "http://").$ipv_address."/";
-    return $ipv_address;
+    $ipv_address = trim($ipv_address);
+    // Remove existing http:// or https:// and trailing slashes if present
+    $ipv_address = preg_replace('#^https?://#i', '', $ipv_address);
+    $ipv_address = rtrim($ipv_address, '/');
+    // Always use http:// for local print server
+    return "http://" . $ipv_address . "/";
 }
 /**
  * send_email

@@ -1,4 +1,14 @@
 <?php
+// CORS headers for cross-origin requests from live POS server
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 //load library
 require __DIR__ . '/escpos-php/autoload.php';
 //include helper function
@@ -6,7 +16,7 @@ include_once 'include/printer_helper.php';
 //include printer load
 include_once 'include/printer_load.php';
 
-$object = json_decode(($_POST['content_data']));
+$object = json_decode(isset($_POST['content_data']) ? $_POST['content_data'] : '');
 if($object){
     $print_type = isset($_POST['print_type']) && $_POST['print_type']?$_POST['print_type']:'';
 

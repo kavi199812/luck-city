@@ -837,16 +837,7 @@ if ($wl) {
                         <a href="#" id="pull_running_order" data-tippy-content="Pull your running orders"
                             class="header_menu_icon bg__red"><i class="fas fa-exchange-alt"></i></a>
                     </li>
-                    <li class="<?php echo escape_output($is_self_order_class) ?>">
-                        <a href="#" id="sync_online"
-                            data-tippy-content="(0)<?php echo lang('sales_currently_in_local'); ?>"
-                            class="header_menu_icon bg__green"><i class="fas fa-sync"></i></a>
-                    </li>
-                    <li class="<?php echo escape_output($is_self_order_class) ?>">
-                        <a href="#" id="online_status" class="bg__green"><span
-                                class="online_status_counter display_none">(0)</span><span
-                                class="online_status_text"><?php echo lang('online'); ?></span></a>
-                    </li>
+                    <!-- sync_online and online_status buttons removed: offline/online feature not used in this system -->
                     <li><a href="#" data-status="veg"
                             class="veg_bev_item bg__green"><?php echo lang('vegetarian_items'); ?></a></li>
                     <li><a href="#" data-status="bev"

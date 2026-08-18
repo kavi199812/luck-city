@@ -1331,20 +1331,13 @@
     }
 
     function checkInternetConnection() {
-        let is_offline_system = Number($("#is_offline_system").val());
-        if (is_offline_system) {
-            return true;
-        } else {
-            return false;
-        }
+        // Offline/online feature not used in this system — always return true (always online)
+        return true;
     }
 
     function notify_online(sale_no) {
-        toastr.options = {
-            positionClass: 'toast-bottom-right'
-        };
-        let msg = "Sale No " + sale_no + " has been uploaded to server";
-        toastr['success'](msg, '');
+        // Notification disabled: offline/online feature not used in this system
+        // toastr['success']("Sale No " + sale_no + " has been uploaded to server", '');
     }
     function makeTX(storeName, mode) {
         let tx = db.transaction(storeName, mode);
@@ -1450,7 +1443,7 @@
                     $.ajax({
                         url: base_url + "Sale/push_online",
                         method: "post",
-                        async: false,
+                        async: true, // Fixed: was async:false which blocked the browser and caused POS to freeze/stuck
                         data: {
                             orders: orders,
                             sales_id: sales_id,
@@ -1488,7 +1481,7 @@
                     $.ajax({
                         url: base_url + "Sale/push_online",
                         method: "post",
-                        async: false,
+                        async: true, // Fixed: was async:false which blocked the browser and caused POS to freeze/stuck
                         data: {
                             orders: orders,
                             sales_id: sales_id,
@@ -1533,20 +1526,23 @@
             $(".online_status_counter").attr("data-total", counter_row_offline_counter);
         }
     }
-    setInterval(function () {
-        if (checkInternetConnection()) {
-            push_online();
-        }
-        remove_more_20();
-    }, 10000);
+    // setInterval disabled: offline/online feature not used in this system
+    // setInterval(function () {
+    //     if (checkInternetConnection()) {
+    //         push_online();
+    //     }
+    //     remove_more_20();
+    // }, 10000);
 
-    setInterval(function () {
-        checkInternetConnectionNew();
-    }, 3000);
+    // setInterval disabled: offline/online feature not used in this system
+    // setInterval(function () {
+    //     checkInternetConnectionNew();
+    // }, 10000); // Fixed: was 3000ms (3s) - too frequent, causing constant server pings and UI lag
 
-    $(document).on("click", "#sync_online", function (e) {
-        push_online_sync();
-    });
+    // sync_online click handler disabled: offline/online feature not used in this system
+    // $(document).on("click", "#sync_online", function (e) {
+    //     push_online_sync();
+    // });
     // purpose of this function is to delete data from recent sales table by using data from indexeddb
     function delete_from_recent_sales(sale_id) {
         let objectStore = db.transaction(['recent_sales'], "readwrite").objectStore("recent_sales");
@@ -15270,7 +15266,7 @@
             },
         });
         //waiter_order_module
-        push_online();
+        // push_online(); // Disabled: offline/online sync not required
         let sale_no_all = '';
         $(".running_order_order_number").each(function () {
             let running_order_order_number = $(this).text();
